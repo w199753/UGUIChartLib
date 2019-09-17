@@ -1,0 +1,1 @@
+E:\UnityProjects\RadarChatTest\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
