@@ -66,7 +66,7 @@ public class RadarChart : BaseMeshEffect
         vh.GetUIVertexStream(tempVertexTriangleStream);
 
         ModifyVertices(tempVertexTriangleStream);
-        print(vh.currentVertCount + " ");
+        //print(vh.currentVertCount + " ");
         vh.Clear();
 
         vh.AddUIVertexTriangleStream(tempVertexTriangleStream);

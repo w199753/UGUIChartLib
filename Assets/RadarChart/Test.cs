@@ -6,23 +6,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using UnityEditorInternal;
 public class Test : MonoBehaviour {
     public RadarChart rd;
     public LineChart line;
     public PieChart pie;
+
+    public Text tt;
 	// Use this for initialization
 	void Start () {
         line.AddKeyPosition(new Vector2(5, 5)).AddKeyPosition(new Vector2(6, 6));
         line.CopyValueToBG(line.KeyPosList,"lineChartBg");
 
-        pie.AddValue(new PieInfo("输出", Color.white, 10)).
+        pie.AddValue(new PieInfo("输出", Color.white, 1)).
             AddValue(new PieInfo("防御", Color.yellow, 15)).
-            AddValue(new PieInfo("治疗", Color.green, 40)).
+            AddValue(new PieInfo("治疗", Color.green, 49)).
             AddValue(new PieInfo("拆塔",Color.blue,35));
 
-           
-	}
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -41,3 +44,4 @@ public class Test : MonoBehaviour {
         }
     }
 }
+
