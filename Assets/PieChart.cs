@@ -20,10 +20,6 @@ public class PieChart : BaseMeshEffect
         get { return pieInfoList; }
     }
 
-    [SerializeField]
-    private float lineRatio = 0;
-    public float LineRatio { get { return LineRatio; } }
-
     [SerializeField,Range(0,1)]
     private float innerRatio=1;
     public float InnerRaio { get { return innerRatio; } }
@@ -57,6 +53,17 @@ public class PieChart : BaseMeshEffect
     }
 
 
+    float Kx = 0, Ky = 0;
+    protected override void OnRectTransformDimensionsChange()
+    {
+        base.OnRectTransformDimensionsChange();
+        width = graphic.rectTransform.sizeDelta.x;
+        height = graphic.rectTransform.sizeDelta.y;
+
+        Kx = width * 0.5f;
+        Ky = height * 0.5f;//scale ratio
+    }
+
     private Vector2 SetVector2(float x,float y)
     {
         m_pos.x = x; m_pos.y = y;
@@ -70,7 +77,6 @@ public class PieChart : BaseMeshEffect
         vh.Clear();
 
         float i = 0;
-        float Kx = width * 0.5f, Ky = height *0.5f;//scale ratio
         float ratioX = (Kx - InnerRaio * Kx);
         float ratioY = (Ky - InnerRaio * Ky);
         for (int j = 0; j < pieInfoList.Count; j++)
@@ -87,23 +93,18 @@ public class PieChart : BaseMeshEffect
                 float cos = Mathf.Cos(i),sin=Mathf.Sin(i);
                 float nextCos = Mathf.Cos(i + 0.0628f * delta), nextSin = Mathf.Sin(i + 0.0628f * delta);
 
-                //vertex.position = new Vector3(nextCos *ratioX , nextSin* ratioY);
                 vertex.position = SetVector2(nextCos * ratioX, nextSin * ratioY);
                 vertex.color = pieInfoList[j].color;
-                //tempVertexTriangleStream.Add(vertex);
                 tmpVertexStream[0] = vertex;
 
-                //vertex.position = new Vector3(nextCos * Kx, nextSin * Ky);
                 vertex.position = SetVector2(nextCos * Kx, nextSin * Ky);
                 vertex.color = pieInfoList[j].color;
                 tmpVertexStream[1] = vertex;
 
-                //vertex.position = new Vector3(cos * Kx, sin * Ky);
                 vertex.position = SetVector2(cos * Kx, sin * Ky);
                 vertex.color = pieInfoList[j].color;
                 tmpVertexStream[2] = vertex;
 
-                //vertex.position = new Vector3(cos * ratioX, sin * ratioY);
                 vertex.position = SetVector2(cos * ratioX, sin * ratioY);
                 vertex.color = pieInfoList[j].color;
                 tmpVertexStream[3] = vertex;
@@ -117,41 +118,6 @@ public class PieChart : BaseMeshEffect
 
         }
 
-        //print(Kx);
-
-
-        
-        /* for (int j = 0; j < pieInfoList.Count; j++)
-         {
-             float value = pieInfoList[j].value;
-
-             float delta = value * 0.1f;//节约mesh资源
-
-             if (value < 5)delta = 1;
-
-             float count = 0;
-             while (count < value)
-             {
-                 vertex.position = new Vector3(0, 0, 0);
-                 vertex.color = pieInfoList[j].color;
-                 tempVertexTriangleStream.Add(vertex);
-
-                 vertex.position = new Vector3(Mathf.Cos(i + 0.0628f * delta) * Kx, Mathf.Sin(i + 0.0628f * delta) * Ky);
-                 vertex.color = pieInfoList[j].color;
-                 tempVertexTriangleStream.Add(vertex);
-
-                 vertex.position = new Vector3(Mathf.Cos(i) * Kx, Mathf.Sin(i) * Ky);
-                 vertex.color = pieInfoList[j].color;
-                 tempVertexTriangleStream.Add(vertex);
-
-
-                 i += 0.0628f * delta;
-                 if (i > 2 * Mathf.PI) break;
-                 count += delta;
-             }
-
-         }
-         vh.AddUIVertexTriangleStream(tempVertexTriangleStream);*/
     }
 
     public PieChart AddValue(PieInfo info)

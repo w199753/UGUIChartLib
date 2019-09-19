@@ -76,7 +76,7 @@ public class RadarChart : BaseMeshEffect
 
     private void ModifyVertices(List<UIVertex> vertices)
     {
-        print(vertices.Count);
+        //print(vertices.Count);
         if (parameters == null) return;
 
         if (ChartUntils.NeedsToUpdateCaches(parameters.Length, startAngleDegree))

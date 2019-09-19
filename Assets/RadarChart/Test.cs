@@ -24,7 +24,7 @@ public class Test : MonoBehaviour {
             AddValue(new PieInfo("治疗", Color.green, 49)).
             AddValue(new PieInfo("拆塔",Color.blue,35));
 
-
+        print(Mathf.PI / 180+" "+Mathf.Deg2Rad);
     }
 	
 	// Update is called once per frame
