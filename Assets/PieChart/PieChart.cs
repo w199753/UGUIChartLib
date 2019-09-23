@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class PieChart : BaseMeshEffect
+public class PieChart : ChartBase
 {
 
     [SerializeField]
@@ -25,13 +25,9 @@ public class PieChart : BaseMeshEffect
     public float InnerRaio { get { return innerRatio; } }
 
 
-    private float width, height;
-    private Vector2 m_pos = new Vector2();
-
-
     public override void ModifyMesh(VertexHelper vh)
     {
-        if (!IsActive() || pieInfoList.Count == 0)
+        if (pieInfoList.Count == 0)
         {
             return;
         }
@@ -45,33 +41,10 @@ public class PieChart : BaseMeshEffect
             Debug.LogError("the total value exceeds the limit");
             return;
         } 
-        width = graphic.rectTransform.sizeDelta.x;
-        height = graphic.rectTransform.sizeDelta.y;
-
         ModifyVertices(vh);
-
     }
 
 
-    float Kx = 0, Ky = 0;
-    protected override void OnRectTransformDimensionsChange()
-    {
-        base.OnRectTransformDimensionsChange();
-        width = graphic.rectTransform.sizeDelta.x;
-        height = graphic.rectTransform.sizeDelta.y;
-
-        Kx = width * 0.5f;
-        Ky = height * 0.5f;//scale ratio
-    }
-
-    private Vector2 SetVector2(float x,float y)
-    {
-        m_pos.x = x; m_pos.y = y;
-        return m_pos;
-    }
-
-    UIVertex vertex = new UIVertex();
-    UIVertex[] tmpVertexStream = new UIVertex[4];
     private void ModifyVertices(VertexHelper vh)
     {
         vh.Clear();
@@ -93,29 +66,18 @@ public class PieChart : BaseMeshEffect
                 float cos = Mathf.Cos(i),sin=Mathf.Sin(i);
                 float nextCos = Mathf.Cos(i + 0.0628f * delta), nextSin = Mathf.Sin(i + 0.0628f * delta);
 
-                vertex.position = SetVector2(nextCos * ratioX, nextSin * ratioY);
-                vertex.color = pieInfoList[j].color;
-                tmpVertexStream[0] = vertex;
+                quadattribute.SetPosition(
+                    CacheUnit.SetVector(nextCos * ratioX, nextSin * ratioY),
+                    CacheUnit.SetVector(nextCos * Kx, nextSin * Ky),
+                    CacheUnit.SetVector(cos * Kx, sin * Ky),
+                    CacheUnit.SetVector(cos * ratioX, sin * ratioY));
+                quadattribute.SetColor(
+                    pieInfoList[j].color,pieInfoList[j].color,pieInfoList[j].color,pieInfoList[j].color);
+                dd.SetItem(vh, quadattribute);
 
-                vertex.position = SetVector2(nextCos * Kx, nextSin * Ky);
-                vertex.color = pieInfoList[j].color;
-                tmpVertexStream[1] = vertex;
-
-                vertex.position = SetVector2(cos * Kx, sin * Ky);
-                vertex.color = pieInfoList[j].color;
-                tmpVertexStream[2] = vertex;
-
-                vertex.position = SetVector2(cos * ratioX, sin * ratioY);
-                vertex.color = pieInfoList[j].color;
-                tmpVertexStream[3] = vertex;
-
-                vh.AddUIVertexQuad(tmpVertexStream);
                 i += 0.0628f *delta;
-                //if (i > 2 * Mathf.PI) break;
                 count += delta;
-                //count+=1;
             }
-
         }
 
     }

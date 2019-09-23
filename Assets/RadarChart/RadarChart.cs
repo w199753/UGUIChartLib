@@ -171,7 +171,7 @@ public class ChartUntils
     public static float? cacheStartAngleDegree = null;
     public static List<float> cacheSines = new List<float>();
     public static List<float> cacheCosines = new List<float>();
-
+    
     public static int parameterCount;
     public static bool NeedsToUpdateCaches(int count, float startAngleDegree)
     {

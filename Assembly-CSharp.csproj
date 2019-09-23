@@ -46,10 +46,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\LineChart.cs" />
-     <Compile Include="Assets\LineChartBG.cs" />
-     <Compile Include="Assets\PieChart.cs" />
-     <Compile Include="Assets\PieChartMgr.cs" />
+     <Compile Include="Assets\CoordinateChart\ChartBase.cs" />
+     <Compile Include="Assets\CoordinateChart\CoordinateChart.cs" />
+     <Compile Include="Assets\LineChart\LineChart.cs" />
+     <Compile Include="Assets\LineChart\LineChartBG.cs" />
+     <Compile Include="Assets\PieChart\PieChart.cs" />
+     <Compile Include="Assets\PieChart\PieChartMgr.cs" />
      <Compile Include="Assets\RadarChart\NewTest.cs" />
      <Compile Include="Assets\RadarChart\RadarChart.cs" />
      <Compile Include="Assets\RadarChart\RadarChartBG.cs" />

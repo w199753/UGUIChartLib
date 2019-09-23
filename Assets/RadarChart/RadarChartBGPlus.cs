@@ -30,14 +30,15 @@ public class CacheUnit
     public static List<float> cacheSinList = new List<float>();
     public static List<float> cacheCosList = new List<float>();
 
-    public static void CacheItemAsAngle(float parametersCount,float delta)
+
+    private static Vector3 tmpV = new Vector3();
+
+    public static void CacheItemAsAngle(float parametersCount, float delta)
     {
         cacheSinList.Clear();
         cacheCosList.Clear();
         float i = 0;
-        
 
-        //float nextRadin = (i + angle) * Mathf.PI / 180f;
         for (int j = 0; j <= parametersCount; j++)
         {
             float preRadian = i * Mathf.Deg2Rad;
@@ -47,13 +48,21 @@ public class CacheUnit
         }
     }
 
-    public static void CacheItemAsRadian(float parametersCount,float delta)
+    public static void CacheItemAsRadian(float parametersCount, float delta)
     {
 
     }
+
+    public static Vector3 SetVector(float x, float y, float z = 0)
+    {
+        tmpV.x = x;
+        tmpV.y = y;
+        tmpV.z = z;
+        return tmpV;
+    }
 }
 
-public class RadarChartBGPlus : BaseMeshEffect
+public class RadarChartBGPlus : ChartBase
 {
     private enum BGColorMode
     {
@@ -90,38 +99,11 @@ public class RadarChartBGPlus : BaseMeshEffect
     private float lineDleta = 10;
 
 
-    private float width, height;
-    private Vector2 m_pos = new Vector2();
-
     public override void ModifyMesh(VertexHelper vh)
     {
-        if (!IsActive())
-        {
-            return;
-        }
-
-
         ModifyVertices(vh);
     }
 
-    float Kx = 0, Ky = 0;
-    protected override void OnRectTransformDimensionsChange()
-    {
-        base.OnRectTransformDimensionsChange();
-        width = graphic.rectTransform.sizeDelta.x;
-        height = graphic.rectTransform.sizeDelta.y;
-
-        Kx = width * 0.5f;
-        Ky = height * 0.5f;//scale ratio
-    }
-    private Vector2 SetVector2(float x, float y)
-    {
-        m_pos.x = x; m_pos.y = y;
-        return m_pos;
-    }
-
-    UIVertex vertex = new UIVertex();
-    UIVertex[] tmpVertexStream = new UIVertex[4];
 
     static int tmpCount = 0;
     private void ModifyVertices(VertexHelper vh)
@@ -129,16 +111,18 @@ public class RadarChartBGPlus : BaseMeshEffect
         vh.Clear();
 
         float angle = 360f / parametersCount;
+
         //判断是否需要缓存
         if (tmpCount != parametersCount)
         {
-            CacheUnit.CacheItemAsAngle(parametersCount,angle);
-        } 
+            CacheUnit.CacheItemAsAngle(parametersCount, angle);
+        }
         tmpCount = parametersCount;
+
 
         float innerX = (Kx - LineCurde * Kx), innerY = (Ky - LineCurde * Ky);
         float outerX = Kx, outerY = Ky;
- 
+
         for (int z = 0; z < circleCount; z++)
         {
             float delta = lineDleta * z;
@@ -158,25 +142,14 @@ public class RadarChartBGPlus : BaseMeshEffect
 
 
                 //上边    顺序：左下角  左上角    右上角   右下角
-                vertex.position = SetVector2(nextCos * (innerX - delta), nextSin * (innerY - delta));
-                vertex.color = bgInfoList[sequence].upBorderColor;
-                tmpVertexStream[0] = vertex;
+                quadattribute.SetPosition(CacheUnit.SetVector(nextCos * (innerX - delta), nextSin * (innerY - delta)), CacheUnit.SetVector(nextCos * (outerX - delta), nextSin * (outerY - delta)),
+                     CacheUnit.SetVector(cos * (outerX - delta), sin * (outerY - delta)), CacheUnit.SetVector(cos * (innerX - delta), sin * (innerY - delta)));
+                quadattribute.SetColor(bgInfoList[sequence].upBorderColor, bgInfoList[sequence].buttomBorderColor,
+                    bgInfoList[sequence].buttomBorderColor, bgInfoList[sequence].upBorderColor);
+                dd.SetItem(vh, quadattribute);
 
-                vertex.position = SetVector2(nextCos * (outerX - delta), nextSin * (outerY - delta));
-                vertex.color = bgInfoList[sequence].buttomBorderColor;
-                tmpVertexStream[1] = vertex;
-
-                vertex.position = SetVector2(cos * (outerX - delta), sin * (outerY - delta));
-                vertex.color = bgInfoList[sequence].buttomBorderColor;
-                tmpVertexStream[2] = vertex;
-
-                vertex.position = SetVector2(cos * (innerX - delta), sin * (innerY - delta));
-                vertex.color = bgInfoList[sequence].upBorderColor;
-                tmpVertexStream[3] = vertex;
-
-                vh.AddUIVertexQuad(tmpVertexStream);
             }
-        }
+        }  
 
         //绘制辅助线
         for (int j = 0; j < parametersCount; j++)
@@ -188,44 +161,19 @@ public class RadarChartBGPlus : BaseMeshEffect
 
             K = Mathf.Abs(K);
 
-            if (K > 500f)//垂直
+            if (K > 500f)//看做无限大  垂直
             {
-                vertex.position = SetVector2(-guideLineWidth, guideLineWidth);
-                vertex.color = lineColor;
-                tmpVertexStream[0] = vertex;
-
-                vertex.position = SetVector2(cos * (outerX) - guideLineWidth, sin * (Ky) + guideLineWidth);
-                vertex.color = lineColor;
-                tmpVertexStream[1] = vertex;
-
-                vertex.position = SetVector2(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth);
-                vertex.color = lineColor;
-                tmpVertexStream[2] = vertex;
-
-                vertex.position = SetVector2(guideLineWidth, -guideLineWidth);
-                vertex.color = lineColor;
-                tmpVertexStream[3] = vertex;
-
-                vh.AddUIVertexQuad(tmpVertexStream);
+                quadattribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth), CacheUnit.SetVector(cos * (outerX) - guideLineWidth, sin * (Ky) + guideLineWidth),
+                    CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth), CacheUnit.SetVector(guideLineWidth, -guideLineWidth));
+                quadattribute.SetColor(lineColor, lineColor,lineColor, lineColor);
+                dd.SetItem(vh, quadattribute);
                 continue;
             }
-            vertex.position = SetVector2(-guideLineWidth, guideLineWidth + K);
-            vertex.color = lineColor;
-            tmpVertexStream[0] = vertex;
+            quadattribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth + K), CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (Ky) + guideLineWidth + K),
+                CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth - K), CacheUnit.SetVector(-guideLineWidth, -guideLineWidth - K));
+            quadattribute.SetColor(lineColor, lineColor, lineColor, lineColor);
+            dd.SetItem(vh, quadattribute);
 
-            vertex.position = SetVector2(cos * (outerX) + guideLineWidth, sin * (Ky) + guideLineWidth + K);
-            vertex.color = lineColor;
-            tmpVertexStream[1] = vertex;
-
-            vertex.position = SetVector2(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth - K);
-            vertex.color = lineColor;
-            tmpVertexStream[2] = vertex;
-
-            vertex.position = SetVector2(-guideLineWidth, -guideLineWidth - K);
-            vertex.color = lineColor;
-            tmpVertexStream[3] = vertex;
-
-            vh.AddUIVertexQuad(tmpVertexStream);
         }
 
     }

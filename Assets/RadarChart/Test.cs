@@ -16,7 +16,7 @@ public class Test : MonoBehaviour {
     public Text tt;
 	// Use this for initialization
 	void Start () {
-        line.AddKeyPosition(new Vector2(5, 5)).AddKeyPosition(new Vector2(6, 6));
+        line.AddKeyPosition(new Vector2(5, 5)*100).AddKeyPosition(new Vector2(6, 6)*100);
         line.CopyValueToBG(line.KeyPosList,"lineChartBg");
 
         pie.AddValue(new PieInfo("输出", Color.white, 1)).
