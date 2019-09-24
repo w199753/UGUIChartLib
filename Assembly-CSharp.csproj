@@ -46,17 +46,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\CoordinateChart\ChartBase.cs" />
+     <Compile Include="Assets\BarChart\BarChart.cs" />
+     <Compile Include="Assets\ChartBase.cs" />
      <Compile Include="Assets\CoordinateChart\CoordinateChart.cs" />
      <Compile Include="Assets\LineChart\LineChart.cs" />
      <Compile Include="Assets\LineChart\LineChartBG.cs" />
      <Compile Include="Assets\PieChart\PieChart.cs" />
      <Compile Include="Assets\PieChart\PieChartMgr.cs" />
-     <Compile Include="Assets\RadarChart\NewTest.cs" />
      <Compile Include="Assets\RadarChart\RadarChart.cs" />
      <Compile Include="Assets\RadarChart\RadarChartBG.cs" />
      <Compile Include="Assets\RadarChart\RadarChartBGPlus.cs" />
-     <Compile Include="Assets\RadarChart\Test.cs" />
+     <Compile Include="Assets\Test\NewTest.cs" />
+     <Compile Include="Assets\Test\Test.cs" />
      <Compile Include="Assets\TextFx\Demo Scene\Scripts\TextFXDemoManager.cs" />
      <Compile Include="Assets\TextFx\Scripts\EffectManager.cs" />
      <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\wide_awake.txt" />

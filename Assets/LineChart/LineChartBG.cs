@@ -52,26 +52,26 @@ public class LineChartBG : ChartBase
         float[] result = ChartUntils.GetKeyArrayMaxxAndMaxy(keyPos);
         float maxx = result[0], maxy = result[1];
 
-
         for (int i = 0; i < keyPos.Count - 1; i++)
         {
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(keyPos[i].x, keyPos[i].y),
                 CacheUnit.SetVector(keyPos[i + 1].x, keyPos[i + 1].y),
                 CacheUnit.SetVector(keyPos[i + 1].x, 0),
                 CacheUnit.SetVector(keyPos[i].x, 0));
-            quadattribute.SetColor(
-                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, upBorderColor),
-                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, upBorderColor),
-                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, buttomBorderColor),
-                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, buttomBorderColor));
-            quadattribute.SetUV(
+            drawAttribute.SetColor(//平滑插值颜色
+                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, Color.Lerp(buttomBorderColor, upBorderColor, keyPos[i].y / height)),
+                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, Color.Lerp(buttomBorderColor, upBorderColor, keyPos[i+1].y / height)),
+                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, Color.Lerp(buttomBorderColor, upBorderColor, 0 / height)),
+                ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, Color.Lerp(buttomBorderColor, upBorderColor, 0 / height))
+                );
+            drawAttribute.SetUV(
                 CacheUnit.SetVector(keyPos[i].x / maxx, keyPos[i].y / maxy),
                 CacheUnit.SetVector(keyPos[i + 1].x / maxx, keyPos[i + 1].y / maxy),
                 CacheUnit.SetVector(keyPos[i + 1].x / maxx, 0),
                 CacheUnit.SetVector(keyPos[i].x / maxx, 0)
                 );
-            dd.SetItem(vh, quadattribute);
+            DrawSimpleQuad(vh, drawAttribute);
         }
 
     }

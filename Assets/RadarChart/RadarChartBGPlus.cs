@@ -48,9 +48,10 @@ public class CacheUnit
         }
     }
 
-    public static void CacheItemAsRadian(float parametersCount, float delta)
+    public static void CacheItemAsRadian(float parametersCount, List<PieInfo>PieInfoList)
     {
-
+        cacheCosList.Clear();
+        cacheSinList.Clear();
     }
 
     public static Vector3 SetVector(float x, float y, float z = 0)
@@ -62,13 +63,18 @@ public class CacheUnit
     }
 }
 
+public enum ColorMode
+{
+    Single,
+    Sector
+}
+public enum ChartRandererType
+{
+    Vertical,
+    Horizontal
+}
 public class RadarChartBGPlus : ChartBase
 {
-    private enum BGColorMode
-    {
-        Circle,
-        Sector
-    }
 
     [SerializeField]
     public List<BGAttribute> bgInfoList = new List<BGAttribute>();
@@ -77,7 +83,7 @@ public class RadarChartBGPlus : ChartBase
     int parametersCount;//数据项个数
 
     [SerializeField]
-    private BGColorMode colorMode = BGColorMode.Circle;
+    private ColorMode colorMode = ColorMode.Single;
 
     [SerializeField]
     int circleCount = 3;
@@ -130,7 +136,7 @@ public class RadarChartBGPlus : ChartBase
             {
                 //设置颜色模式
                 int sequence = -1;
-                if (colorMode == BGColorMode.Circle)
+                if (colorMode == ColorMode.Single)
                     sequence = z;
                 else
                     sequence = j;
@@ -142,11 +148,11 @@ public class RadarChartBGPlus : ChartBase
 
 
                 //上边    顺序：左下角  左上角    右上角   右下角
-                quadattribute.SetPosition(CacheUnit.SetVector(nextCos * (innerX - delta), nextSin * (innerY - delta)), CacheUnit.SetVector(nextCos * (outerX - delta), nextSin * (outerY - delta)),
+                drawAttribute.SetPosition(CacheUnit.SetVector(nextCos * (innerX - delta), nextSin * (innerY - delta)), CacheUnit.SetVector(nextCos * (outerX - delta), nextSin * (outerY - delta)),
                      CacheUnit.SetVector(cos * (outerX - delta), sin * (outerY - delta)), CacheUnit.SetVector(cos * (innerX - delta), sin * (innerY - delta)));
-                quadattribute.SetColor(bgInfoList[sequence].upBorderColor, bgInfoList[sequence].buttomBorderColor,
+                drawAttribute.SetColor(bgInfoList[sequence].upBorderColor, bgInfoList[sequence].buttomBorderColor,
                     bgInfoList[sequence].buttomBorderColor, bgInfoList[sequence].upBorderColor);
-                dd.SetItem(vh, quadattribute);
+                DrawSimpleQuad(vh, drawAttribute);
 
             }
         }  
@@ -163,16 +169,16 @@ public class RadarChartBGPlus : ChartBase
 
             if (K > 500f)//看做无限大  垂直
             {
-                quadattribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth), CacheUnit.SetVector(cos * (outerX) - guideLineWidth, sin * (Ky) + guideLineWidth),
+                drawAttribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth), CacheUnit.SetVector(cos * (outerX) - guideLineWidth, sin * (Ky) + guideLineWidth),
                     CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth), CacheUnit.SetVector(guideLineWidth, -guideLineWidth));
-                quadattribute.SetColor(lineColor, lineColor,lineColor, lineColor);
-                dd.SetItem(vh, quadattribute);
+                drawAttribute.SetColor(lineColor, lineColor,lineColor, lineColor);
+                DrawSimpleQuad(vh, drawAttribute);
                 continue;
             }
-            quadattribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth + K), CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (Ky) + guideLineWidth + K),
+            drawAttribute.SetPosition(CacheUnit.SetVector(-guideLineWidth, guideLineWidth + K), CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (Ky) + guideLineWidth + K),
                 CacheUnit.SetVector(cos * (outerX) + guideLineWidth, sin * (outerY) - guideLineWidth - K), CacheUnit.SetVector(-guideLineWidth, -guideLineWidth - K));
-            quadattribute.SetColor(lineColor, lineColor, lineColor, lineColor);
-            dd.SetItem(vh, quadattribute);
+            drawAttribute.SetColor(lineColor, lineColor, lineColor, lineColor);
+            DrawSimpleQuad(vh, drawAttribute);
 
         }
 

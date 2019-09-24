@@ -65,33 +65,33 @@ public class LineChart : ChartBase
 
         for (int i = 0; i < keyPos.Count - 1; i++)
         {
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(keyPos[i].x, keyPos[i].y), 
                 CacheUnit.SetVector(keyPos[i + 1].x, keyPos[i + 1].y),
                 CacheUnit.SetVector(keyPos[i + 1].x, keyPos[i + 1].y - LineWidth), 
                 CacheUnit.SetVector(keyPos[i].x, (keyPos[i].y - LineWidth)));
-            quadattribute.SetColor(
+            drawAttribute.SetColor(
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, LineColor),
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, LineColor), 
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, LineColor),
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, LineColor));
-            dd.SetItem(vh, quadattribute);
+            DrawSimpleQuad(vh, drawAttribute);
         }
 
         //画点
         for (int i = 0; i < keyPos.Count; i++)
         {
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(keyPos[i].x - LineWidth, keyPos[i].y + LineWidth), 
                 CacheUnit.SetVector(keyPos[i].x + LineWidth, keyPos[i].y + LineWidth),
                 CacheUnit.SetVector(keyPos[i].x + LineWidth, keyPos[i].y - LineWidth),
                 CacheUnit.SetVector(keyPos[i].x - LineWidth, keyPos[i].y - LineWidth));
-            quadattribute.SetColor(
+            drawAttribute.SetColor(
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, PointColor),
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, PointColor), 
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, PointColor),
                 ChartUntils.GetMultipliedColor(tempVertexTriangleStream[0].color, PointColor));
-            dd.SetItem(vh, quadattribute);
+            DrawSimpleQuad(vh, drawAttribute);
 
         }
     }

@@ -20,9 +20,25 @@ public class PieChart : ChartBase
         get { return pieInfoList; }
     }
 
-    [SerializeField,Range(0,1)]
-    private float innerRatio=1;
-    public float InnerRaio { get { return innerRatio; } }
+    [SerializeField]
+    private float separationDegree = 0f;
+    /// <summary>
+    /// 分离度
+    /// </summary>
+    public float SeparationDegree
+    {
+        get { return separationDegree; }
+    }
+
+    [SerializeField, Range(0, 1)]
+    private float innerRatio = 1;
+    /// <summary>
+    /// 内部圆环缩放比例
+    /// </summary>
+    public float InnerRaio
+    {
+        get { return innerRatio; }
+    }
 
 
     public override void ModifyMesh(VertexHelper vh)
@@ -40,7 +56,7 @@ public class PieChart : ChartBase
         {
             Debug.LogError("the total value exceeds the limit");
             return;
-        } 
+        }
         ModifyVertices(vh);
     }
 
@@ -52,6 +68,7 @@ public class PieChart : ChartBase
         float i = 0;
         float ratioX = (Kx - InnerRaio * Kx);
         float ratioY = (Ky - InnerRaio * Ky);
+
         for (int j = 0; j < pieInfoList.Count; j++)
         {
             float value = pieInfoList[j].value;
@@ -61,21 +78,28 @@ public class PieChart : ChartBase
             if (value < 5) delta = 1;
 
             float count = 0;
+
+            float preRadian = i;
+            float nextRadian = i + 0.0628f * delta * (value / delta);
+            Vector3 preV = new Vector3(Mathf.Cos(preRadian), Mathf.Sin(preRadian));
+            Vector3 nextV = new Vector3(Mathf.Cos(nextRadian), Mathf.Sin(nextRadian));
+            Vector3 separationVector = (preV + nextV).normalized * 0.5f;
+
             while (count < value)
             {
-                float cos = Mathf.Cos(i),sin=Mathf.Sin(i);
+                float cos = Mathf.Cos(i), sin = Mathf.Sin(i);
                 float nextCos = Mathf.Cos(i + 0.0628f * delta), nextSin = Mathf.Sin(i + 0.0628f * delta);
 
-                quadattribute.SetPosition(
-                    CacheUnit.SetVector(nextCos * ratioX, nextSin * ratioY),
-                    CacheUnit.SetVector(nextCos * Kx, nextSin * Ky),
-                    CacheUnit.SetVector(cos * Kx, sin * Ky),
-                    CacheUnit.SetVector(cos * ratioX, sin * ratioY));
-                quadattribute.SetColor(
-                    pieInfoList[j].color,pieInfoList[j].color,pieInfoList[j].color,pieInfoList[j].color);
-                dd.SetItem(vh, quadattribute);
+                drawAttribute.SetPosition(
+                    CacheUnit.SetVector(nextCos * ratioX, nextSin * ratioY) + separationVector * separationDegree,
+                    CacheUnit.SetVector(nextCos * (Kx), nextSin * (Ky)) + separationVector * separationDegree,
+                    CacheUnit.SetVector(cos * (Kx), sin * (Ky)) + separationVector * separationDegree,
+                    CacheUnit.SetVector(cos * ratioX, sin * ratioY) + separationVector * separationDegree);
+                drawAttribute.SetColor(
+                    pieInfoList[j].color, pieInfoList[j].color, pieInfoList[j].color, pieInfoList[j].color);
+                DrawSimpleQuad(vh, drawAttribute);
 
-                i += 0.0628f *delta;
+                i += 0.0628f * delta;
                 count += delta;
             }
         }
@@ -91,7 +115,7 @@ public class PieChart : ChartBase
 }
 
 /// <summary>
-/// 饼状图的基本信息，比例为百分比
+/// 图标中的基本信息
 /// </summary>
 [Serializable]
 public struct PieInfo
@@ -106,4 +130,56 @@ public struct PieInfo
         this.color = color;
         this.value = value;
     }
+}
+
+[Serializable]
+public struct BarInfo
+{
+    public string name;
+    public int groupCount;
+    public List<PieInfo> attributeInfoList;
+
+    public BarInfo(string name, int groupCount, float itemDelta = 10f)
+    {
+        this.name = name;
+        this.groupCount = groupCount;
+        attributeInfoList = new List<PieInfo>();
+        index = 0;
+    }
+
+    private int index;
+    public BarInfo SetGroupItem(string name, int value, Color color)
+    {
+        if (index < groupCount)
+        {
+            attributeInfoList.Add(new PieInfo(name, color, value));
+            index++;
+        }
+        return this;
+    }
+
+    public BarInfo SetGroupItem(PieInfo info)
+    {
+        if (index < groupCount)
+        {
+            attributeInfoList.Add(info);
+            index++;
+        }
+        return this;
+    }
+
+    public void SetGroupItem(List<PieInfo> infoList)
+    {
+        foreach (var item in infoList)
+        {
+            if (index < groupCount)
+            {
+                attributeInfoList.Add(item);
+                index++;
+            }
+        }
+    }
+
+
+
 }

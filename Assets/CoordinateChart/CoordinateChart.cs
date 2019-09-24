@@ -26,10 +26,17 @@ public class CoordinateChart : ChartBase
     }
 
     [SerializeField]
-    private bool m_isShowGrid = true;
-    public bool IsShowGrid
+    private bool m_isShowXGrid = true;
+    public bool IsShowXGrid
     {
-        get { return m_isShowGrid; }
+        get { return m_isShowXGrid; }
+    }
+
+    [SerializeField]
+    private bool m_isShowYGrid = true;
+    public bool IsShowYGrid
+    {
+        get { return m_isShowYGrid; }
     }
 
     [SerializeField]
@@ -60,14 +67,14 @@ public class CoordinateChart : ChartBase
         get { return m_isShowArrow; }
     }
 
-    [SerializeField]
+    [SerializeField, Range(5f, 15f)]
     private float m_arrowSize = 1;
     public float ArrowSize
     {
         get { return m_arrowSize; }
     }
 
-    [SerializeField]
+    [SerializeField, Range(1f, 5f)]
     private float m_lineWidth = 1;
     public float LineWidth
     {
@@ -84,8 +91,6 @@ public class CoordinateChart : ChartBase
 
     public override void ModifyMesh(VertexHelper vh)
     {
-        if (!IsActive()) return;
-
         ModifyVertices(vh);
     }
 
@@ -93,8 +98,6 @@ public class CoordinateChart : ChartBase
     protected override void OnRectTransformDimensionsChange()
     {
         base.OnRectTransformDimensionsChange();
-        width = graphic.rectTransform.sizeDelta.x;
-        height = graphic.rectTransform.sizeDelta.y;
 
         RectTransform trans = graphic.rectTransform;
         xLength = width - width * trans.pivot.x;
@@ -109,46 +112,46 @@ public class CoordinateChart : ChartBase
         if (IsShowXAxis)
         {
             //draw x
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(0, -LineWidth),
                 CacheUnit.SetVector(0, 0),
                 CacheUnit.SetVector(xLength, 0),
                 CacheUnit.SetVector(xLength, -LineWidth));
-            quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-            dd.SetItem(vh, quadattribute);
+            drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+            DrawSimpleQuad(vh, drawAttribute);
         }
 
         if (IsShowArrow)
         {
             //draw x arrow
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(xLength, LineWidth + ArrowSize - LineWidth / 2f),
                 CacheUnit.SetVector(xLength + 2 * ArrowSize, -LineWidth / 2f),
                 CacheUnit.SetVector(xLength + 2 * ArrowSize, -LineWidth / 2f),
                 CacheUnit.SetVector(xLength, -LineWidth - ArrowSize - LineWidth / 2f));
-            quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-            dd.SetItem(vh, quadattribute);
+            drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+            DrawSimpleQuad(vh, drawAttribute);
 
             //draw y arrow
-            quadattribute.SetPosition(
+            drawAttribute.SetPosition(
                 CacheUnit.SetVector(-ArrowSize - LineWidth / 2 - LineWidth, yLength),
                 CacheUnit.SetVector(-LineWidth / 2, yLength + ArrowSize * 2),
-                CacheUnit.SetVector(-LineWidth / 2, yLength + ArrowSize * 2), 
+                CacheUnit.SetVector(-LineWidth / 2, yLength + ArrowSize * 2),
                 CacheUnit.SetVector(ArrowSize + LineWidth / 2, yLength));
-            quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-            dd.SetItem(vh, quadattribute);
+            drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+            DrawSimpleQuad(vh, drawAttribute);
         }
 
         if (IsShowYAxis)
         {
             //draw y axis
-            quadattribute.SetPosition(
-                CacheUnit.SetVector(-LineWidth, -LineWidth), 
+            drawAttribute.SetPosition(
+                CacheUnit.SetVector(-LineWidth, -LineWidth),
                 CacheUnit.SetVector(-LineWidth, yLength),
-                CacheUnit.SetVector(0, yLength), 
+                CacheUnit.SetVector(0, yLength),
                 CacheUnit.SetVector(0, -LineWidth));
-            quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-            dd.SetItem(vh, quadattribute);
+            drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+            DrawSimpleQuad(vh, drawAttribute);
         }
 
         if (IsShowScale)
@@ -156,102 +159,59 @@ public class CoordinateChart : ChartBase
             //draw x sacle
             for (int i = BaseUnit; i <= xLength; i += BaseUnit)
             {
-                quadattribute.SetPosition(
-                    CacheUnit.SetVector(i - LineWidth / 2f, 0), 
+                drawAttribute.SetPosition(
+                    CacheUnit.SetVector(i - LineWidth / 2f, 0),
                     CacheUnit.SetVector(i - LineWidth / 2f, 10),
-                    CacheUnit.SetVector(i + LineWidth / 2f, 10), 
+                    CacheUnit.SetVector(i + LineWidth / 2f, 10),
                     CacheUnit.SetVector(i + LineWidth / 2f, 0));
-                quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-                dd.SetItem(vh, quadattribute);
+                drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+                DrawSimpleQuad(vh, drawAttribute);
             }
             //draw y scale
             for (int i = BaseUnit; i < yLength; i += BaseUnit)
             {
-                quadattribute.SetPosition(
-                    CacheUnit.SetVector(0, i + LineWidth / 2f), 
+                drawAttribute.SetPosition(
+                    CacheUnit.SetVector(0, i + LineWidth / 2f),
                     CacheUnit.SetVector(10, i + LineWidth / 2f),
-                    CacheUnit.SetVector(10, i - LineWidth / 2f), 
+                    CacheUnit.SetVector(10, i - LineWidth / 2f),
                     CacheUnit.SetVector(0, i - LineWidth / 2f));
-                quadattribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
-                dd.SetItem(vh, quadattribute);
+                drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
+                DrawSimpleQuad(vh, drawAttribute);
             }
         }
 
         //draw grid
-        if (IsShowGrid)
+        if (IsShowYGrid)
         {
-
-            for (int i = BaseUnit; i <= xLength; i += BaseUnit)
-            {
-                quadattribute.SetPosition(
-                    CacheUnit.SetVector(i - LineWidth / 2f, 0), 
-                    CacheUnit.SetVector(i - LineWidth / 2f, yLength),
-                    CacheUnit.SetVector(i + LineWidth / 2f, yLength), 
-                    CacheUnit.SetVector(i + LineWidth / 2f, 0));
-                quadattribute.SetColor(GridColor, GridColor, GridColor, GridColor);
-                dd.SetItem(vh, quadattribute);
-            }
+            //draw x grid
             for (int i = BaseUnit; i < yLength; i += BaseUnit)
             {
-                quadattribute.SetPosition(
+                drawAttribute.SetPosition(
                     CacheUnit.SetVector(0, i + LineWidth / 2f),
                     CacheUnit.SetVector(xLength, i + LineWidth / 2f),
-                    CacheUnit.SetVector(xLength, i - LineWidth / 2f), 
+                    CacheUnit.SetVector(xLength, i - LineWidth / 2f),
                     CacheUnit.SetVector(0, i - LineWidth / 2f));
-                quadattribute.SetColor(GridColor, GridColor, GridColor, GridColor);
-                dd.SetItem(vh, quadattribute);
+                drawAttribute.SetColor(GridColor, GridColor, GridColor, GridColor);
+                DrawSimpleQuad(vh, drawAttribute);
+            }
+        }
+        if (IsShowXGrid)
+        {
+            //draw y grid
+            for (int i = BaseUnit; i <= xLength; i += BaseUnit)
+            {
+                drawAttribute.SetPosition(
+                    CacheUnit.SetVector(i - LineWidth / 2f, 0),
+                    CacheUnit.SetVector(i - LineWidth / 2f, yLength),
+                    CacheUnit.SetVector(i + LineWidth / 2f, yLength),
+                    CacheUnit.SetVector(i + LineWidth / 2f, 0));
+                drawAttribute.SetColor(GridColor, GridColor, GridColor, GridColor);
+                DrawSimpleQuad(vh, drawAttribute);
             }
         }
 
     }
 
-
 }
-public struct QuadAttribute
-{
-    private Vector3[] pos;
-    private Color[] color;
-    private Vector3[] uv;
-    public Vector3[] Pos
-    {
-        get { if (pos == null) pos = new Vector3[4]; return pos; }
-    }
-    public Color[] Color
-    {
-        get { if (color == null) color = new Color[4]; return color; }
-    }
-    public Vector3[] UV
-    {
-        get { if (uv == null) uv = new Vector3[4]; return uv; }
-    }
 
-    //private void Init
 
-    public void SetPosition(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
-    {
-        Pos[0] = v1; Pos[1] = v2; Pos[2] = v3; Pos[3] = v4;
-    }
-    public void SetUV(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
-    {
-        UV[0] = v1; UV[1] = v2; UV[2] = v3; UV[3] = v4;
-    }
-    public void SetColor(Color c1, Color c2, Color c3, Color c4)
-    {
-        Color[0] = c1; Color[1] = c2; Color[2] = c3; Color[3] = c4;
-    }
-}
-public class DrawUnit
-{
-    VertexHelper vh;
-    UIVertex[] tmpVertexStream = new UIVertex[4];
-    public void SetItem(VertexHelper vh, QuadAttribute atb)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            tmpVertexStream[i].color = atb.Color[i];
-            tmpVertexStream[i].position = atb.Pos[i];
-            tmpVertexStream[i].uv0 = atb.UV[i];
-        }
-        vh.AddUIVertexQuad(tmpVertexStream);
-    }
-}
