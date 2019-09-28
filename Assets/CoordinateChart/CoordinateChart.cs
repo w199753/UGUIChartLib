@@ -95,6 +95,7 @@ public class CoordinateChart : ChartBase
     }
 
     float xLength, yLength;
+    float centerX, centerY;
     protected override void OnRectTransformDimensionsChange()
     {
         base.OnRectTransformDimensionsChange();
@@ -102,7 +103,9 @@ public class CoordinateChart : ChartBase
         RectTransform trans = graphic.rectTransform;
         xLength = width - width * trans.pivot.x;
         yLength = height - height * trans.pivot.y;
-        //print(width + " " + height+" "+xLength+" "+yLength);
+
+        centerX = -width * trans.pivot.x;
+        centerY = -height * trans.pivot.y;
     }
 
     private void ModifyVertices(VertexHelper vh)
@@ -113,31 +116,31 @@ public class CoordinateChart : ChartBase
         {
             //draw x
             drawAttribute.SetPosition(
-                CacheUnit.SetVector(0, -LineWidth),
-                CacheUnit.SetVector(0, 0),
-                CacheUnit.SetVector(xLength, 0),
-                CacheUnit.SetVector(xLength, -LineWidth));
+                CacheUnit.SetVector(0 + centerX, -LineWidth),
+                CacheUnit.SetVector(0 + centerX, 0),
+                CacheUnit.SetVector(width + centerX, 0),
+                CacheUnit.SetVector(width + centerX, -LineWidth));
             drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
             DrawSimpleQuad(vh, drawAttribute);
         }
-
+        
         if (IsShowArrow)
         {
             //draw x arrow
             drawAttribute.SetPosition(
-                CacheUnit.SetVector(xLength, LineWidth + ArrowSize - LineWidth / 2f),
-                CacheUnit.SetVector(xLength + 2 * ArrowSize, -LineWidth / 2f),
-                CacheUnit.SetVector(xLength + 2 * ArrowSize, -LineWidth / 2f),
-                CacheUnit.SetVector(xLength, -LineWidth - ArrowSize - LineWidth / 2f));
+                CacheUnit.SetVector(width + centerX, LineWidth + ArrowSize - LineWidth / 2f),
+                CacheUnit.SetVector(width + centerX + 2 * ArrowSize, -LineWidth / 2f),
+                CacheUnit.SetVector(width + centerX + 2 * ArrowSize, -LineWidth / 2f),
+                CacheUnit.SetVector(width + centerX, -LineWidth - ArrowSize - LineWidth / 2f));
             drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
             DrawSimpleQuad(vh, drawAttribute);
 
             //draw y arrow
             drawAttribute.SetPosition(
-                CacheUnit.SetVector(-ArrowSize - LineWidth / 2 - LineWidth, yLength),
-                CacheUnit.SetVector(-LineWidth / 2, yLength + ArrowSize * 2),
-                CacheUnit.SetVector(-LineWidth / 2, yLength + ArrowSize * 2),
-                CacheUnit.SetVector(ArrowSize + LineWidth / 2, yLength));
+                CacheUnit.SetVector(-ArrowSize - LineWidth / 2 - LineWidth, height + centerY),
+                CacheUnit.SetVector(-LineWidth / 2, height + centerY + ArrowSize * 2),
+                CacheUnit.SetVector(-LineWidth / 2, height + centerY + ArrowSize * 2),
+                CacheUnit.SetVector(ArrowSize + LineWidth / 2, height + centerY));
             drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
             DrawSimpleQuad(vh, drawAttribute);
         }
@@ -146,10 +149,10 @@ public class CoordinateChart : ChartBase
         {
             //draw y axis
             drawAttribute.SetPosition(
-                CacheUnit.SetVector(-LineWidth, -LineWidth),
-                CacheUnit.SetVector(-LineWidth, yLength),
-                CacheUnit.SetVector(0, yLength),
-                CacheUnit.SetVector(0, -LineWidth));
+                CacheUnit.SetVector(-LineWidth, -LineWidth + centerY),
+                CacheUnit.SetVector(-LineWidth, height + centerY),
+                CacheUnit.SetVector(0, height + centerY),
+                CacheUnit.SetVector(0, -LineWidth + centerY));
             drawAttribute.SetColor(AxisColor, AxisColor, AxisColor, AxisColor);
             DrawSimpleQuad(vh, drawAttribute);
         }
@@ -184,13 +187,13 @@ public class CoordinateChart : ChartBase
         if (IsShowYGrid)
         {
             //draw x grid
-            for (int i = BaseUnit; i < yLength; i += BaseUnit)
+            for (int i = BaseUnit; i < yLength - centerY; i += BaseUnit)
             {
                 drawAttribute.SetPosition(
-                    CacheUnit.SetVector(0, i + LineWidth / 2f),
-                    CacheUnit.SetVector(xLength, i + LineWidth / 2f),
-                    CacheUnit.SetVector(xLength, i - LineWidth / 2f),
-                    CacheUnit.SetVector(0, i - LineWidth / 2f));
+                    CacheUnit.SetVector(0 + centerX, i + LineWidth / 2f + centerY),
+                    CacheUnit.SetVector(width + centerX, i + LineWidth / 2f + centerY),
+                    CacheUnit.SetVector(width + centerX, i - LineWidth / 2f + centerY),
+                    CacheUnit.SetVector(0 + centerX, i - LineWidth / 2f + centerY));
                 drawAttribute.SetColor(GridColor, GridColor, GridColor, GridColor);
                 DrawSimpleQuad(vh, drawAttribute);
             }
@@ -198,13 +201,13 @@ public class CoordinateChart : ChartBase
         if (IsShowXGrid)
         {
             //draw y grid
-            for (int i = BaseUnit; i <= xLength; i += BaseUnit)
+            for (int i = BaseUnit; i <= xLength - centerX; i += BaseUnit)
             {
                 drawAttribute.SetPosition(
-                    CacheUnit.SetVector(i - LineWidth / 2f, 0),
-                    CacheUnit.SetVector(i - LineWidth / 2f, yLength),
-                    CacheUnit.SetVector(i + LineWidth / 2f, yLength),
-                    CacheUnit.SetVector(i + LineWidth / 2f, 0));
+                    CacheUnit.SetVector(i - LineWidth / 2f + centerX, 0 + centerY),
+                    CacheUnit.SetVector(i - LineWidth / 2f + centerX, height + centerY),
+                    CacheUnit.SetVector(i + LineWidth / 2f + centerX, height + centerY),
+                    CacheUnit.SetVector(i + LineWidth / 2f + centerX, 0 + centerY));
                 drawAttribute.SetColor(GridColor, GridColor, GridColor, GridColor);
                 DrawSimpleQuad(vh, drawAttribute);
             }

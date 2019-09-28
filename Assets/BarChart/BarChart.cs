@@ -49,11 +49,19 @@ public class BarChart : ChartBase
     }
 
     [SerializeField]
-    private ChartRandererType m_chartRandererType = ChartRandererType.Horizontal;
-    public ChartRandererType barRandererType
+    private ChartDirType m_chartDirType = ChartDirType.Horizontal;
+    public ChartDirType barDirType
+    {
+        get { return m_chartDirType; }
+    }
+
+    [SerializeField]
+    private ChartRandererType m_chartRandererType = ChartRandererType.BarGroup;
+    public ChartRandererType chartRandererType
     {
         get { return m_chartRandererType; }
     }
+
 
     public override void ModifyMesh(VertexHelper vh)
     {
@@ -65,11 +73,18 @@ public class BarChart : ChartBase
     {
         base.OnRectTransformDimensionsChange();
 
+        RectTransform trans = graphic.rectTransform;
+
+        centerX = -width * trans.pivot.x;
+        centerY = -height * trans.pivot.y;
     }
+
+
     private void ModifyVertices(VertexHelper vh)
     {
         vh.Clear();
         float groupDelta = 0;
+        Color tmpColor = new Color();
         for (int i = 0; i < BarInfoList.Count; i++)
         {
             float itemDelta = 0;
@@ -77,7 +92,6 @@ public class BarChart : ChartBase
             for (int j = 0; j < BarInfoList[i].groupCount; j++)
             {
                 PieInfo tmpInfo = BarInfoList[i].attributeInfoList[j];
-                Color tmpColor = new Color();
                 if (BarColorMode == ColorMode.Single)
                 {
                     tmpColor = BarInfoList[i].attributeInfoList[0].color;
@@ -86,29 +100,91 @@ public class BarChart : ChartBase
                 {
                     tmpColor = tmpInfo.color;
                 }
-                if (barRandererType == ChartRandererType.Horizontal)
+
+                if (m_chartRandererType == ChartRandererType.BarGroup)
                 {
-                    drawAttribute.SetPosition(
-                        CacheUnit.SetVector(groupDelta + itemDelta, 0),
-                        CacheUnit.SetVector(groupDelta + itemDelta, tmpInfo.value),
-                        CacheUnit.SetVector(groupDelta + itemDelta + BarWidth, tmpInfo.value),
-                        CacheUnit.SetVector(groupDelta + itemDelta + BarWidth, 0)
-                        );
+                    if (barDirType == ChartDirType.Horizontal)
+                    {
+                        if (isShowBorder)
+                        {
+                            DrawSimpleRectBorder(vh,
+                                CacheUnit.SetVector(groupDelta + itemDelta + centerX, 0 + centerY),
+                                CacheUnit.SetVector(groupDelta + itemDelta + centerX, tmpInfo.value + centerY),
+                                CacheUnit.SetVector(groupDelta + itemDelta + BarWidth + centerX, tmpInfo.value + centerY),
+                                CacheUnit.SetVector(groupDelta + itemDelta + BarWidth + centerX, 0 + centerY)
+                                );
+                        }
+                        drawAttribute.SetPosition(
+                            CacheUnit.SetVector(groupDelta + itemDelta + centerX, 0 + centerY),
+                            CacheUnit.SetVector(groupDelta + itemDelta + centerX, tmpInfo.value + centerY),
+                            CacheUnit.SetVector(groupDelta + itemDelta + BarWidth + centerX, tmpInfo.value + centerY),
+                            CacheUnit.SetVector(groupDelta + itemDelta + BarWidth + centerX, 0 + centerY)
+                            );
+                    }
+                    else if (barDirType == ChartDirType.Vertical)
+                    {
+                        if (isShowBorder)
+                        {
+                            DrawSimpleRectBorder(vh,
+                               CacheUnit.SetVector(0 + centerX, groupDelta + itemDelta + centerY),
+                               CacheUnit.SetVector(0 + centerX, groupDelta + itemDelta + BarWidth + centerY),
+                               CacheUnit.SetVector(tmpInfo.value + centerX, groupDelta + itemDelta + BarWidth + centerY),
+                               CacheUnit.SetVector(tmpInfo.value + centerX, groupDelta + itemDelta + centerY)
+                                );
+                        }
+                        drawAttribute.SetPosition(
+                           CacheUnit.SetVector(0 + centerX, groupDelta + itemDelta + centerY),
+                           CacheUnit.SetVector(0 + centerX, groupDelta + itemDelta + BarWidth + centerY),
+                           CacheUnit.SetVector(tmpInfo.value + centerX, groupDelta + itemDelta + BarWidth + centerY),
+                           CacheUnit.SetVector(tmpInfo.value + centerX, groupDelta + itemDelta + centerY)
+                           );
+                    }
                     drawAttribute.SetColor(tmpColor, tmpColor, tmpColor, tmpColor);
                     DrawSimpleQuad(vh, drawAttribute);
                     itemDelta += m_barItemDelta + BarWidth;
                 }
-                else if (barRandererType == ChartRandererType.Vertical)
+                else if (m_chartRandererType == ChartRandererType.SingleBar)//单条显示
                 {
-                    drawAttribute.SetPosition(
-                       CacheUnit.SetVector(0, groupDelta + itemDelta),
-                       CacheUnit.SetVector(0, groupDelta + itemDelta + BarWidth),
-                       CacheUnit.SetVector(tmpInfo.value, groupDelta + itemDelta + BarWidth),
-                       CacheUnit.SetVector(tmpInfo.value, groupDelta + itemDelta)
-                       );
+                    m_colorMode = ColorMode.Sector;
+                    if (barDirType == ChartDirType.Horizontal)
+                    {
+                        if(isShowBorder)
+                        {
+                            DrawSimpleRectBorder(vh, CacheUnit.SetVector(groupDelta + centerX, 0 + centerY + itemDelta),
+                                CacheUnit.SetVector(groupDelta + centerX, tmpInfo.value + centerY + itemDelta),
+                                CacheUnit.SetVector(groupDelta + BarWidth + centerX, tmpInfo.value + centerY + itemDelta),
+                                CacheUnit.SetVector(groupDelta + BarWidth + centerX, 0 + centerY + itemDelta));
+                        }
+
+                        drawAttribute.SetPosition(
+                            CacheUnit.SetVector(groupDelta + centerX, 0 + centerY + itemDelta),
+                            CacheUnit.SetVector(groupDelta + centerX, tmpInfo.value + centerY + itemDelta),
+                            CacheUnit.SetVector(groupDelta + BarWidth + centerX, tmpInfo.value + centerY + itemDelta),
+                            CacheUnit.SetVector(groupDelta + BarWidth + centerX, 0 + centerY + itemDelta)
+                            );
+
+                    }
+                    else if (barDirType == ChartDirType.Vertical)
+                    {
+                        if(isShowBorder)
+                        {
+                            DrawSimpleRectBorder(vh,
+                               CacheUnit.SetVector(0 + centerX + itemDelta, groupDelta + centerY),
+                               CacheUnit.SetVector(0 + centerX + itemDelta, groupDelta + BarWidth + centerY),
+                               CacheUnit.SetVector(tmpInfo.value + centerX + itemDelta, groupDelta + BarWidth + centerY),
+                               CacheUnit.SetVector(tmpInfo.value + centerX + itemDelta, groupDelta + centerY));
+                        }
+
+                        drawAttribute.SetPosition(
+                           CacheUnit.SetVector(0 + centerX + itemDelta, groupDelta + centerY),
+                           CacheUnit.SetVector(0 + centerX + itemDelta, groupDelta + BarWidth + centerY),
+                           CacheUnit.SetVector(tmpInfo.value + centerX + itemDelta, groupDelta + BarWidth + centerY),
+                           CacheUnit.SetVector(tmpInfo.value + centerX + itemDelta, groupDelta + centerY)
+                           );
+                    }
                     drawAttribute.SetColor(tmpColor, tmpColor, tmpColor, tmpColor);
                     DrawSimpleQuad(vh, drawAttribute);
-                    itemDelta += m_barItemDelta + BarWidth;
+                    itemDelta += tmpInfo.value;
                 }
             }
             groupDelta += BarWidth + m_groupDelta;//设置组间距

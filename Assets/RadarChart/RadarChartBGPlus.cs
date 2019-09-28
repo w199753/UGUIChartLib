@@ -25,54 +25,6 @@ public struct BGAttribute
     }
 }
 
-public class CacheUnit
-{
-    public static List<float> cacheSinList = new List<float>();
-    public static List<float> cacheCosList = new List<float>();
-
-
-    private static Vector3 tmpV = new Vector3();
-
-    public static void CacheItemAsAngle(float parametersCount, float delta)
-    {
-        cacheSinList.Clear();
-        cacheCosList.Clear();
-        float i = 0;
-
-        for (int j = 0; j <= parametersCount; j++)
-        {
-            float preRadian = i * Mathf.Deg2Rad;
-            cacheCosList.Add(Mathf.Cos(preRadian));
-            cacheSinList.Add(Mathf.Sin(preRadian));
-            i += delta;
-        }
-    }
-
-    public static void CacheItemAsRadian(float parametersCount, List<PieInfo>PieInfoList)
-    {
-        cacheCosList.Clear();
-        cacheSinList.Clear();
-    }
-
-    public static Vector3 SetVector(float x, float y, float z = 0)
-    {
-        tmpV.x = x;
-        tmpV.y = y;
-        tmpV.z = z;
-        return tmpV;
-    }
-}
-
-public enum ColorMode
-{
-    Single,
-    Sector
-}
-public enum ChartRandererType
-{
-    Vertical,
-    Horizontal
-}
 public class RadarChartBGPlus : ChartBase
 {
 
