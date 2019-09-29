@@ -2,6 +2,8 @@
 	author：@
 	Last modified data:
 	funtion todo:
+
+    todo:改进直线图，添加散点图，要求可以画星星,三角圆之类的
 */
 using System.Collections;
 using System.Collections.Generic;

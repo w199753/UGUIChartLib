@@ -9,7 +9,8 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
-public class FunctionChart : ChartBase {
+public class FunctionChart : ChartBase
+{
     [Serializable]
     //Ax+By+C=0;     y=(-Ax-C)/B
     public struct LinearFun
@@ -20,8 +21,7 @@ public class FunctionChart : ChartBase {
         public float B;
         [Range(0.1f, 5f)]
         public float C;
-
-        public LinearFun(float a,float b, float c)
+        public LinearFun(float a, float b, float c)
         {
             A = a;
             B = b;
@@ -47,11 +47,26 @@ public class FunctionChart : ChartBase {
         public float B;
     }
 
+    [Serializable]
+    public struct InverseFun
+    {
+        public float K;
+    }
+
+    /// <summary>
+    /// 自定义函数图像
+    /// </summary>
+    public struct CustomFun
+    {
+
+    }
+
     private enum FunctionType
     {
         SinFun,
         CosFun,
-        LinearFun
+        LinearFun,
+        InverseFun
     }
 
     [SerializeField]
@@ -65,23 +80,37 @@ public class FunctionChart : ChartBase {
         get { return lineWidth; }
     }
 
-    [SerializeField,Range(5f,15f)]
-    private float lineSmooth = 10f;
+    [SerializeField, Range(1f, 15f)]
+    private float lineSmooth = 1f;
     public float LineSmooth
     {
         get { return lineSmooth; }
     }
 
-    public LinearFun linearFun = new LinearFun(0.1f,0.1f,0.1f);
+    [SerializeField]
+    private Color m_lineColor = Color.white;
+    public Color LineColor
+    {
+        get { return m_lineColor; }
+    }
+
+    [SerializeField, Range(1f, 100f)]
+    private float m_baseUnit = 1f;
+    public float BaseUnit
+    {
+        get { return m_baseUnit; }
+    }
+
+    public LinearFun linearFun = new LinearFun(0.1f, 0.1f, 0.1f);
     public CosineFun cosFun = new CosineFun();
     public SinFun sinFun = new SinFun();
+    public InverseFun inverseFun = new InverseFun();
 
     public override void ModifyMesh(VertexHelper vh)
     {
         ModifyVertices(vh);
     }
 
-    float centerX, centerY;
     private void ModifyVertices(VertexHelper vh)
     {
         vh.Clear();
@@ -97,20 +126,21 @@ public class FunctionChart : ChartBase {
             case FunctionType.LinearFun:
                 DrawLinearFunChart(vh, funType);
                 break;
+            case FunctionType.InverseFun:
+                DrawInverseFunChart(vh, funType);
+                break;
             default:
                 break;
         }
-
-
     }
 
     void DrawSinFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f,type) * sinFun.A;
+        var startPos = GetResult(-width / 2.0f, type) * sinFun.A;
         for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
         {
-            var endPos = GetResult(x,type) * sinFun.A;
-            vh.AddUIVertexQuad(GetQuad(startPos + new Vector2(0, sinFun.B), endPos + new Vector2(0, sinFun.B), Color.white, lineWidth));
+            var endPos = GetResult(x, type) * sinFun.A;
+            DrawSimpleQuad(vh,GetQuad(startPos + new Vector2(0, sinFun.B), endPos + new Vector2(0, sinFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
     }
@@ -121,7 +151,7 @@ public class FunctionChart : ChartBase {
         for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type) * cosFun.A;
-            vh.AddUIVertexQuad(GetQuad(startPos + new Vector2(0, cosFun.B), endPos + new Vector2(0, cosFun.B), Color.white, lineWidth));
+            DrawSimpleQuad(vh, GetQuad(startPos + new Vector2(0, cosFun.B), endPos + new Vector2(0, cosFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
     }
@@ -131,30 +161,75 @@ public class FunctionChart : ChartBase {
         var startPos = GetResult(-width / 2.0f, type);
         for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
         {
-            var endPos = GetResult(x, type) ;
-            vh.AddUIVertexQuad(GetQuad(startPos, endPos, Color.white, lineWidth));
+            var endPos = GetResult(x, type);
+            DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
     }
 
-    Vector2 GetResult(float x, FunctionType type)
+    void DrawInverseFunChart(VertexHelper vh, FunctionType type)
+    {
+        var startPos = GetResult(-width / 2.0f, type);
+        float delta;
+        int count = 0;
+        for (var x = -width / 2.0f + 1; x < -0.1f; x += lineSmooth * (delta * 0.2f))
+        {
+            delta = Mathf.Abs(x);
+            count++;
+            if (count > 1000) break;//最多绘制两千次,防超
+            var endPos = GetResult(x, type);
+            DrawSimpleQuad(vh,GetQuad(startPos, endPos, m_lineColor, lineWidth));
+            startPos = endPos;
+        }
+        startPos = GetResult(0 + 0.5f, type);
+        count = 0;
+        for (var x = 0 + 0.1f; x < width / 2.0f; x += lineSmooth * (delta * 0.2f))
+        {
+            delta = Mathf.Abs(x);
+            count++;
+            if (count > 1000) break;
+            var endPos = GetResult(x, type);
+            DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+            startPos = endPos;
+        }
+    }
+
+
+    /// <summary>
+    /// 通过函数获得结果的坐标点
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private Vector2 GetResult(float x, FunctionType type)
     {
         switch (type)
         {
             case FunctionType.SinFun:
-                return new Vector2(x, Mathf.Sin(x * Mathf.Deg2Rad) * 100);
+                return CacheUnit.SetVector(x, Mathf.Sin(x * Mathf.Deg2Rad));
             case FunctionType.CosFun:
-                return new Vector2(x, Mathf.Cos(x * Mathf.Deg2Rad) * 100);
+                return CacheUnit.SetVector(x, Mathf.Cos(x * Mathf.Deg2Rad) * 100) * BaseUnit;
             case FunctionType.LinearFun:
                 //y=(-Ax-C)/B
-                return new Vector2(x, (-linearFun.A*x-linearFun.C)/linearFun.B )*10;
+                return CacheUnit.SetVector(x, (-linearFun.A * x - linearFun.C) / linearFun.B) * BaseUnit;
+            case FunctionType.InverseFun:
+                return CacheUnit.SetVector(x, inverseFun.K / x) * BaseUnit;
             default:
                 return default(Vector2);
         }
-        
+
     }
 
-    private UIVertex[] GetQuad(Vector2 startPos, Vector2 endPos, Color color0, float lineWidth = 2.0f)
+
+    /// <summary>
+    /// 获得需要绘制的四边形属性
+    /// </summary>
+    /// <param name="startPos"></param>
+    /// <param name="endPos"></param>
+    /// <param name="color0"></param>
+    /// <param name="lineWidth"></param>
+    /// <returns></returns>
+    private DrawAttribute GetQuad(Vector2 startPos, Vector2 endPos, Color color0, float lineWidth = 2.0f)
     {
         var dis = Vector2.Distance(startPos, endPos);
         if (dis == 0) dis = 0.001f;
@@ -162,14 +237,15 @@ public class FunctionChart : ChartBase {
         var x = lineWidth * 0.5f * (endPos.y - startPos.y) / dis;
         if (y <= 0) y = -y;
         else x = -x;
-        var vertex = new UIVertex[4];
-        vertex[0].position = new Vector3(startPos.x + x, startPos.y + y);
-        //vertex[0].color = Color.red;
-        vertex[1].position = new Vector3(endPos.x + x, endPos.y + y);
-        vertex[2].position = new Vector3(endPos.x - x, endPos.y - y);
-        vertex[3].position = new Vector3(startPos.x - x, startPos.y - y);
-        for ( var i = 0 ; i < vertex.Length ; i++ ) vertex[i].color = color0;
-        return vertex;
+
+        drawAttribute.SetPosition(
+            CacheUnit.SetVector(startPos.x + x, startPos.y + y),
+            CacheUnit.SetVector(endPos.x + x, endPos.y + y),
+            CacheUnit.SetVector(endPos.x - x, endPos.y - y),
+            CacheUnit.SetVector(startPos.x - x, startPos.y - y)
+            );
+        drawAttribute.SetColor(color0, color0, color0, color0);
+        return drawAttribute;
     }
 
 }
