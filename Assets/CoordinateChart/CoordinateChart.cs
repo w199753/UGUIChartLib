@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 public class CoordinateChart : ChartBase
@@ -91,7 +92,9 @@ public class CoordinateChart : ChartBase
 
     public override void ModifyMesh(VertexHelper vh)
     {
+        
         ModifyVertices(vh);
+
     }
 
     float xLength, yLength;

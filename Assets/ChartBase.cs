@@ -69,7 +69,7 @@ public abstract class ChartBase : BaseMeshEffect
     protected float Kx, Ky;
     protected float width, height;
 
-    protected DrawAttribute drawAttribute = new DrawAttribute();
+    protected DrawAttribute drawAttribute = new DrawAttribute(Vector3.zero,Color.white,Vector3.zero);
 
     protected static List<UIVertex> tempVertexTriangleStream = new List<UIVertex>();
 
@@ -122,10 +122,10 @@ public abstract class ChartBase : BaseMeshEffect
 
         //draw right border
         drawAttribute.SetPosition(
-            CacheUnit.SetVector(v3.x+ borderWidth, v3.y+ borderWidth),
-            CacheUnit.SetVector(v4.x+ borderWidth, v4.y - borderWidth),
-            CacheUnit.SetVector(v4.x , v4.y - borderWidth),
-            CacheUnit.SetVector(v3.x , v3.y + borderWidth)
+            CacheUnit.SetVector(v3.x + borderWidth, v3.y + borderWidth),
+            CacheUnit.SetVector(v4.x + borderWidth, v4.y - borderWidth),
+            CacheUnit.SetVector(v4.x, v4.y - borderWidth),
+            CacheUnit.SetVector(v3.x, v3.y + borderWidth)
             );
         drawAttribute.SetColor(borderColor, borderColor, borderColor, borderColor);
         DrawSimpleQuad(vh, drawAttribute);
@@ -134,7 +134,7 @@ public abstract class ChartBase : BaseMeshEffect
         drawAttribute.SetPosition(
             CacheUnit.SetVector(v1.x, v1.y - borderWidth),
             CacheUnit.SetVector(v4.x, v4.y - borderWidth),
-            CacheUnit.SetVector(v4.x, v4.y ),
+            CacheUnit.SetVector(v4.x, v4.y),
             CacheUnit.SetVector(v1.x, v1.y)
             );
         drawAttribute.SetColor(borderColor, borderColor, borderColor, borderColor);
@@ -174,6 +174,13 @@ public struct DrawAttribute
     private Vector3[] pos;
     private Color[] color;
     private Vector3[] uv;
+
+    public DrawAttribute(Vector3 dePos, Color deColor, Vector3 deUv) : this()
+    {
+        pos = new Vector3[4] { dePos, dePos, dePos, dePos };
+        color = new Color[4] { deColor, deColor, deColor, deColor };
+        uv = new Vector3[4] { deUv, deUv, deUv, deUv };
+    }
     public Vector3[] Pos
     {
         get { if (pos == null) pos = new Vector3[4]; return pos; }
@@ -203,8 +210,8 @@ public struct DrawAttribute
     }
     public void Clear()
     {
-        Pos[0] =  Pos[1] =  Pos[2] =  Pos[3] = CacheUnit.SetVector(0, 0, 0); 
-        UV[0] =  UV[1] =  UV[2] =  UV[3] = CacheUnit.SetVector(0, 0, 0);
+        Pos[0] = Pos[1] = Pos[2] = Pos[3] = CacheUnit.SetVector(0, 0, 0);
+        UV[0] = UV[1] = UV[2] = UV[3] = CacheUnit.SetVector(0, 0, 0);
         Color[0] = Color[1] = Color[2] = Color[3] = UnityEngine.Color.white;
 
     }

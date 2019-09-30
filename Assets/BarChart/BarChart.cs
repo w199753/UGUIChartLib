@@ -8,6 +8,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 
@@ -191,7 +192,6 @@ public class BarChart : ChartBase
             }
             groupDelta += BarWidth + m_groupDelta;//设置组间距
         }
-
     }
     public BarChart AddValue(BarInfo info)
     {

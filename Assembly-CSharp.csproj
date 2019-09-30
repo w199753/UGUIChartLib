@@ -68,9 +68,6 @@
      <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\showcard_50px.txt" />
      <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\showcard_gothic.txt" />
      <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\hawaii_killer.txt" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -85,9 +82,6 @@
  </Reference>
  <Reference Include="UnityEngine.HoloLens">
  <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Purchasing">
- <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/UnityPurchasing/UnityEngine.Purchasing.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.VR">
  <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>

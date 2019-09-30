@@ -205,7 +205,7 @@ public class ChartUntils
             (Byte)(color1.a * color2.a / 255));
     }
 
-    public static float[] GetKeyArrayMaxxAndMaxy(List<Vector2> keyArray)
+    public static float[] GetKeyArrayMaxxAndMaxy(List<Vector3> keyArray)
     {
         float maxx = -9999;
         float maxy = -9999;

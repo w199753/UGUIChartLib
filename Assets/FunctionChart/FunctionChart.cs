@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Profiling;
 
 public class FunctionChart : ChartBase
 {
@@ -140,7 +141,7 @@ public class FunctionChart : ChartBase
         for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type) * sinFun.A;
-            DrawSimpleQuad(vh,GetQuad(startPos + new Vector2(0, sinFun.B), endPos + new Vector2(0, sinFun.B), m_lineColor, lineWidth));
+            DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, sinFun.B), endPos + CacheUnit.SetVector(0, sinFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
     }
@@ -151,7 +152,7 @@ public class FunctionChart : ChartBase
         for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type) * cosFun.A;
-            DrawSimpleQuad(vh, GetQuad(startPos + new Vector2(0, cosFun.B), endPos + new Vector2(0, cosFun.B), m_lineColor, lineWidth));
+            DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, cosFun.B), endPos + CacheUnit.SetVector(0, cosFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
     }
@@ -178,7 +179,7 @@ public class FunctionChart : ChartBase
             count++;
             if (count > 1000) break;//最多绘制两千次,防超
             var endPos = GetResult(x, type);
-            DrawSimpleQuad(vh,GetQuad(startPos, endPos, m_lineColor, lineWidth));
+            DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
         startPos = GetResult(0 + 0.5f, type);
@@ -201,12 +202,12 @@ public class FunctionChart : ChartBase
     /// <param name="x"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    private Vector2 GetResult(float x, FunctionType type)
+    private Vector3 GetResult(float x, FunctionType type)
     {
         switch (type)
         {
             case FunctionType.SinFun:
-                return CacheUnit.SetVector(x, Mathf.Sin(x * Mathf.Deg2Rad));
+                return CacheUnit.SetVector(x, Mathf.Sin(x * Mathf.Deg2Rad) * 100)*BaseUnit;
             case FunctionType.CosFun:
                 return CacheUnit.SetVector(x, Mathf.Cos(x * Mathf.Deg2Rad) * 100) * BaseUnit;
             case FunctionType.LinearFun:
@@ -215,7 +216,7 @@ public class FunctionChart : ChartBase
             case FunctionType.InverseFun:
                 return CacheUnit.SetVector(x, inverseFun.K / x) * BaseUnit;
             default:
-                return default(Vector2);
+                return default(Vector3);
         }
 
     }
@@ -229,7 +230,7 @@ public class FunctionChart : ChartBase
     /// <param name="color0"></param>
     /// <param name="lineWidth"></param>
     /// <returns></returns>
-    private DrawAttribute GetQuad(Vector2 startPos, Vector2 endPos, Color color0, float lineWidth = 2.0f)
+    private DrawAttribute GetQuad(Vector3 startPos, Vector3 endPos, Color color0, float lineWidth = 2.0f)
     {
         var dis = Vector2.Distance(startPos, endPos);
         if (dis == 0) dis = 0.001f;

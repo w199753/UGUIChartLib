@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditorInternal;
+using UnityEngine.Profiling;
+
 public class Test : MonoBehaviour
 {
     public RadarChart rd;
@@ -16,9 +18,17 @@ public class Test : MonoBehaviour
     public BarChart bar;
 
     public Text tt;
+
+    //重大发现！！！！！！！
+    /*
+     * 如果Vector2不赋值就进行get操作，会产生很多可怕的GC
+     * 
+     */
+
     // Use this for initialization
     void Start()
     {
+
         if (line)
         {
             line.AddKeyPosition(new Vector2(5, 5) * 100).AddKeyPosition(new Vector2(6, 6) * 100);
@@ -32,7 +42,7 @@ public class Test : MonoBehaviour
                 AddValue(new PieInfo("治疗", Color.green, 49)).
                 AddValue(new PieInfo("拆塔", Color.blue, 35));
         }
-        if(bar)
+        if (bar)
         {
             BarInfo bb1 = new BarInfo("123", 2);
             bb1.SetGroupItem(new PieInfo("小弟", Color.yellow, 500));

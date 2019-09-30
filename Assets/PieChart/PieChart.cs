@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 
@@ -68,7 +69,6 @@ public class PieChart : ChartBase
         float i = 0;
         float ratioX = (Kx - InnerRaio * Kx);
         float ratioY = (Ky - InnerRaio * Ky);
-
         for (int j = 0; j < pieInfoList.Count; j++)
         {
             float value = pieInfoList[j].value;
@@ -103,7 +103,6 @@ public class PieChart : ChartBase
                 count += delta;
             }
         }
-
     }
 
     public PieChart AddValue(PieInfo info)

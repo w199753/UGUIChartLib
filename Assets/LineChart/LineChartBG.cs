@@ -14,7 +14,7 @@ public class LineChartBG : ChartBase
 {
 
 
-    public List<Vector2> keyPos;
+    public List<Vector3> keyPos;
 
     [SerializeField]
     private Color upBorderColor = Color.white;
