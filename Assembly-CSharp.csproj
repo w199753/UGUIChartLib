@@ -48,8 +48,9 @@
   <ItemGroup>
      <Compile Include="Assets\BarChart\BarChart.cs" />
      <Compile Include="Assets\ChartBase.cs" />
-     <Compile Include="Assets\ColorStrip.cs" />
+     <Compile Include="Assets\ColorStrip\ColorStrip.cs" />
      <Compile Include="Assets\CoordinateChart\CoordinateChart.cs" />
+     <Compile Include="Assets\FunctionChart\Expression.cs" />
      <Compile Include="Assets\FunctionChart\FunctionChart.cs" />
      <Compile Include="Assets\LineChart\LineChart.cs" />
      <Compile Include="Assets\LineChart\LineChartBG.cs" />

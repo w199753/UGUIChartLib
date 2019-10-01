@@ -57,9 +57,11 @@ public class FunctionChart : ChartBase
     /// <summary>
     /// 自定义函数图像
     /// </summary>
+    [Serializable]
     public struct CustomFun
     {
-
+        [SerializeField]
+        public string formula;
     }
 
     private enum FunctionType
@@ -67,7 +69,8 @@ public class FunctionChart : ChartBase
         SinFun,
         CosFun,
         LinearFun,
-        InverseFun
+        InverseFun,
+        CustomFun
     }
 
     [SerializeField]
@@ -106,6 +109,7 @@ public class FunctionChart : ChartBase
     public CosineFun cosFun = new CosineFun();
     public SinFun sinFun = new SinFun();
     public InverseFun inverseFun = new InverseFun();
+    public CustomFun customFun = new CustomFun();
 
     public override void ModifyMesh(VertexHelper vh)
     {
@@ -129,6 +133,9 @@ public class FunctionChart : ChartBase
                 break;
             case FunctionType.InverseFun:
                 DrawInverseFunChart(vh, funType);
+                break;
+            case FunctionType.CustomFun:
+                DrawCustomFunChart(vh, funType);
                 break;
             default:
                 break;
@@ -195,6 +202,17 @@ public class FunctionChart : ChartBase
         }
     }
 
+    void DrawCustomFunChart(VertexHelper vh, FunctionType type)
+    {
+        var startPos = GetResult(-width / 2.0f, type);
+        for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
+        {
+            var endPos = GetResult(x, type);
+            DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+            startPos = endPos;
+        }
+    }
+
 
     /// <summary>
     /// 通过函数获得结果的坐标点
@@ -207,7 +225,7 @@ public class FunctionChart : ChartBase
         switch (type)
         {
             case FunctionType.SinFun:
-                return CacheUnit.SetVector(x, Mathf.Sin(x * Mathf.Deg2Rad) * 100)*BaseUnit;
+                return CacheUnit.SetVector(x, Mathf.Sin(x * Mathf.Deg2Rad) * 100) * BaseUnit;
             case FunctionType.CosFun:
                 return CacheUnit.SetVector(x, Mathf.Cos(x * Mathf.Deg2Rad) * 100) * BaseUnit;
             case FunctionType.LinearFun:
@@ -215,6 +233,10 @@ public class FunctionChart : ChartBase
                 return CacheUnit.SetVector(x, (-linearFun.A * x - linearFun.C) / linearFun.B) * BaseUnit;
             case FunctionType.InverseFun:
                 return CacheUnit.SetVector(x, inverseFun.K / x) * BaseUnit;
+            case FunctionType.CustomFun:
+                Expression exp = new Expression(customFun.formula);
+                //print(customFun.formula);
+                return CacheUnit.SetVector(x, exp.GetReslut((int)x))*BaseUnit;
             default:
                 return default(Vector3);
         }
