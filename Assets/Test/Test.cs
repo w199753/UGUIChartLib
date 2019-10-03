@@ -54,6 +54,14 @@ public class Test : MonoBehaviour
 
             bar.AddValue(bb1).AddValue(bb2);
         }
+        Profiler.BeginSample("NewTest!!!");
+        string tt = "316151a  ";
+        for (int i = 0; i < 100; i++)
+        {
+            tt.Trim();
+        }
+        Profiler.EndSample();
+
 
     }
 

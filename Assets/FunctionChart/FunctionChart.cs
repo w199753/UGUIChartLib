@@ -12,6 +12,7 @@ using UnityEngine.Profiling;
 
 public class FunctionChart : ChartBase
 {
+
     [Serializable]
     //Ax+By+C=0;     y=(-Ax-C)/B
     public struct LinearFun
@@ -116,6 +117,19 @@ public class FunctionChart : ChartBase
         ModifyVertices(vh);
     }
 
+
+    float centerX, centerY;
+    protected override void OnRectTransformDimensionsChange()
+    {
+        base.OnRectTransformDimensionsChange();
+
+        RectTransform trans = graphic.rectTransform;
+
+        centerX = width * trans.pivot.x;
+        centerY = height * trans.pivot.y;
+
+        //print(Screen.height);
+    }
     private void ModifyVertices(VertexHelper vh)
     {
         vh.Clear();
@@ -144,10 +158,15 @@ public class FunctionChart : ChartBase
 
     void DrawSinFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f, type) * sinFun.A;
-        for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
+        float startX = -width / 2.0f;
+
+        var startPos = SetCullingArea(ref startX, type) * sinFun.A;
+
+        for (var x = startX; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type) * sinFun.A;
+            if (GetCullingArea(endPos)) continue;
+
             DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, sinFun.B), endPos + CacheUnit.SetVector(0, sinFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
@@ -155,10 +174,15 @@ public class FunctionChart : ChartBase
 
     void DrawCosFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f, type) * cosFun.A;
-        for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
+        float startX = -width / 2.0f;
+
+        var startPos = SetCullingArea(ref startX, type) * cosFun.A;
+
+        for (var x = startX; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type) * cosFun.A;
+            if (GetCullingArea(endPos)) continue;
+
             DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, cosFun.B), endPos + CacheUnit.SetVector(0, cosFun.B), m_lineColor, lineWidth));
             startPos = endPos;
         }
@@ -166,10 +190,15 @@ public class FunctionChart : ChartBase
 
     void DrawLinearFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f, type);
-        for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
+        float startX = -width / 2.0f;
+
+        var startPos = SetCullingArea(ref startX, type);
+
+        for (var x = startX; x < width / 2.0f; x += lineSmooth)
         {
             var endPos = GetResult(x, type);
+            if (GetCullingArea(endPos)) continue;
+
             DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
@@ -177,26 +206,36 @@ public class FunctionChart : ChartBase
 
     void DrawInverseFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f, type);
+        float startX = -width / 2.0f;
         float delta;
         int count = 0;
-        for (var x = -width / 2.0f + 1; x < -0.1f; x += lineSmooth * (delta * 0.2f))
+
+        var startPos = SetCullingArea(ref startX, type);
+
+        for (var x = startX; x < -0.1f; x += lineSmooth * (delta * 0.2f))
         {
             delta = Mathf.Abs(x);
             count++;
-            if (count > 1000) break;//最多绘制两千次,防超
+            if (count > 600) break;//最多绘制两千次,防无限绘制y方向
             var endPos = GetResult(x, type);
+            if (GetCullingArea(endPos)) continue;
+
             DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
-        startPos = GetResult(0 + 0.5f, type);
+
+        startX = 0 + 0.1f;
+        startPos = SetCullingArea(ref startX, type);
         count = 0;
-        for (var x = 0 + 0.1f; x < width / 2.0f; x += lineSmooth * (delta * 0.2f))
+
+        for (var x = startX; x < width / 2.0f; x += lineSmooth * (delta * 0.2f))
         {
             delta = Mathf.Abs(x);
             count++;
-            if (count > 1000) break;
+            if (count > 600) break;
             var endPos = GetResult(x, type);
+            if (GetCullingArea(endPos)) continue;
+
             DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
@@ -204,14 +243,47 @@ public class FunctionChart : ChartBase
 
     void DrawCustomFunChart(VertexHelper vh, FunctionType type)
     {
-        var startPos = GetResult(-width / 2.0f, type);
-        for (var x = -width / 2.0f + 1; x < width / 2.0f; x += lineSmooth)
+        Profiler.BeginSample("123123123");
+        float startX = -width / 2.0f;
+        var startPos = SetCullingArea(ref startX, type);
+
+        //print(height - centerY + " " + -centerY);
+        //print(width - centerX + " " + -centerX);
+        for (var x = startX; x < width / 2.0f; x += lineSmooth*0.2f )
         {
             var endPos = GetResult(x, type);
+            if (GetCullingArea(endPos)) continue;
+            //print(startPos.y+" "+ endPos.y+"....."+startX);
             DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
             startPos = endPos;
         }
+        Profiler.EndSample();
     }
+
+    private Vector3 SetCullingArea(ref float startX, FunctionType type)
+    {
+        float add = 1;
+        Vector2 tmpStartPos = GetResult(startX, type);
+        while (tmpStartPos.y > height - centerY || tmpStartPos.y < -centerY)
+        {
+            if (add >= width/2 - 1) break;//防死循环
+            tmpStartPos = GetResult(startX + add, type);
+            add+=0.4f;
+        }
+        //print(tmpStartPos + "......................"+add+"................."+startX);
+        startX += (add - 1);
+        return tmpStartPos;
+    }
+
+    private bool GetCullingArea(Vector2 pos)
+    {
+        if (pos.y > height - centerY || pos.y < -centerY)
+            return true;
+        if (pos.x > width - centerX || pos.x < -centerX)
+            return true;
+            return false;
+    }
+
 
 
     /// <summary>
@@ -234,9 +306,8 @@ public class FunctionChart : ChartBase
             case FunctionType.InverseFun:
                 return CacheUnit.SetVector(x, inverseFun.K / x) * BaseUnit;
             case FunctionType.CustomFun:
-                Expression exp = new Expression(customFun.formula);
-                //print(customFun.formula);
-                return CacheUnit.SetVector(x, exp.GetReslut((int)x))*BaseUnit;
+                exp.SetFormula(customFun.formula);
+                return CacheUnit.SetVector(x, exp.GetReslut(x)) * BaseUnit;
             default:
                 return default(Vector3);
         }
@@ -270,5 +341,8 @@ public class FunctionChart : ChartBase
         drawAttribute.SetColor(color0, color0, color0, color0);
         return drawAttribute;
     }
+
+
+    private Expression exp = new Expression();
 
 }

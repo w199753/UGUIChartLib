@@ -9,29 +9,49 @@ using UnityEngine;
 public class Expression
 {
 
-    private string formula;
+    private int index = -1;
+    private char[] targetFormula;
+    private int realLength = -1;
 
-    private int index = 0;
-    private char[] targetFormula = new char[100];
-    public Expression(string formula)
+    private Stack<string> opSysbol;
+    private Stack<float> opNumber;
+
+    public Expression()
     {
-        this.formula = formula;
-        for (int i = 0; i < formula.Length; i++)
-        {
-            targetFormula[i] = formula[i];
-        }
+        targetFormula = new char[100];
+        opSysbol = new Stack<string>(512);
+        opNumber = new Stack<float>(512);
     }
 
-    public float GetReslut(int variableValue)
+    public void SetFormula(string formula)
     {
-        Stack<string> opSysbol = new Stack<string>();
-        Stack<float> opNumber = new Stack<float>();
+        if (string.IsNullOrEmpty(formula))
+        {
+            throw new System.Exception("the formulaStr is null or empty,check it");
+        }
+        int j = 0;
+        for (int i = 0; i < formula.Length; i++)
+        {
+            if (formula[i] != ' ')
+                targetFormula[j++] = formula[i];
+        }
+        realLength = j;
+    }
+
+    public float GetReslut(float variableValue)
+    {
+        if (realLength<0)
+        {
+            Debug.LogError("please set formula first!");
+            return 0;
+        }
+        opSysbol.Clear();
+        opNumber.Clear();
 
         opSysbol.Push("#");
-        int len = formula.Length;
         bool is_minus = true;//判断是否为符号
 
-        for (index = 0; index < len;)
+        for (index = 0; index < realLength;)
         {
             if (targetFormula[index] == '-' && is_minus)
             {
@@ -46,6 +66,10 @@ public class Expression
 
                 while (opSysbol.Peek() != "(")
                 {
+                    if (opNumber.Count < 2)
+                    {
+                        return 0;
+                    }
                     float a2 = opNumber.Peek();
                     opNumber.Pop();
                     float a1 = opNumber.Peek();
@@ -58,16 +82,24 @@ public class Expression
                 }
                 opSysbol.Pop();
             }
-            /*else if(targetFormula[index]=='^')
-            {
-                is_minus = false;
-                opSysbol.Push("^");
-                index++;
-            }*/
-            else if (targetFormula[index] == 'c')
+            else if (targetFormula[index] == 'c' && targetFormula[index + 1] == 'o' && targetFormula[index + 2] == 's')
             {
                 is_minus = false;
                 opSysbol.Push("cos");
+                opNumber.Push(1);
+                index += 3;
+            }
+            else if (targetFormula[index] == 's' && targetFormula[index + 1] == 'i' && targetFormula[index + 2] == 'n')
+            {
+                is_minus = false;
+                opSysbol.Push("sin");
+                opNumber.Push(1);
+                index += 3;
+            }
+            else if (targetFormula[index] == 't' && targetFormula[index + 1] == 'a' && targetFormula[index + 2] == 'n')
+            {
+                is_minus = false;
+                opSysbol.Push("tan");
                 opNumber.Push(1);
                 index += 3;
             }
@@ -104,26 +136,37 @@ public class Expression
             else if (targetFormula[index] == '(')
             {
                 is_minus = true;
-                opSysbol.Push(targetFormula[index].ToString());
+                opSysbol.Push("(");
                 index++;
             }
-            //5.+-*/
+            //5.+-*/^
             else
             {
                 while (GetLevel(targetFormula[index]) <= GetLevel(opSysbol.Peek()[0]))
                 {
-
+                    if (opNumber.Count < 2)
+                    {
+                        return 0;
+                    }
                     float a2 = opNumber.Peek();
                     opNumber.Pop();
                     float a1 = opNumber.Peek();
                     opNumber.Pop();
                     string op = opSysbol.Peek();
                     opSysbol.Pop();
-                    //Debug.Log(a2 + " " + a1 + " " + op);
                     float result = Operate(a1, op, a2);
                     opNumber.Push(result);
                 }
-                opSysbol.Push(targetFormula[index].ToString());
+                if (targetFormula[index] == '+')
+                    opSysbol.Push("+");
+                else if (targetFormula[index] == '-')
+                    opSysbol.Push("-");
+                else if (targetFormula[index] == '*')
+                    opSysbol.Push("*");
+                else if (targetFormula[index] == '/')
+                    opSysbol.Push("/");
+                else if (targetFormula[index] == '^')
+                    opSysbol.Push("^");
                 index++;
             }
         }
@@ -131,6 +174,10 @@ public class Expression
 
         while (opSysbol.Peek() != "#")
         {
+            if (opNumber.Count < 2)
+            {
+                return 0;
+            }
             float a2 = opNumber.Peek();
             opNumber.Pop();
             float a1 = opNumber.Peek();
@@ -141,12 +188,12 @@ public class Expression
             float res = Operate(a1, op, a2);
             opNumber.Push(res);
         }
-        index = 0;
+
         return opNumber.Peek();
     }
 
     /* 返回运算符级别 */
-    int GetLevel(char ch)
+    private int GetLevel(char ch)
     {
         switch (ch)
         {
@@ -158,6 +205,8 @@ public class Expression
             case 'c':
             case '^':
             case 'l':
+            case 's':
+            case 't':
                 return 2;
             case '(':
                 return 0;
@@ -167,7 +216,7 @@ public class Expression
         return 0;
     }
 
-    float Translatrion()
+    private float Translatrion()
     {
         float integer = 0.0f;    // 整数部分
         float remainder = 0.0f;  // 余数部分
@@ -220,6 +269,10 @@ public class Expression
                 return Mathf.Pow(a1, a2);
             case "cos":
                 return Mathf.Cos(a1 * a2);
+            case "sin":
+                return Mathf.Sin(a1 * a2);
+            case "tan":
+                return Mathf.Tan(a1 * a2);
         }
         return 0;
     }
