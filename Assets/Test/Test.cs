@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditorInternal;
+using ChartLib;
 using UnityEngine.Profiling;
 
 public class Test : MonoBehaviour
@@ -19,11 +19,6 @@ public class Test : MonoBehaviour
 
     public Text tt;
 
-    //重大发现！！！！！！！
-    /*
-     * 如果Vector2不赋值就进行get操作，会产生很多可怕的GC
-     * 
-     */
 
     // Use this for initialization
     void Start()
@@ -54,13 +49,6 @@ public class Test : MonoBehaviour
 
             bar.AddValue(bb1).AddValue(bb2);
         }
-        Profiler.BeginSample("NewTest!!!");
-        string tt = "316151a  ";
-        for (int i = 0; i < 100; i++)
-        {
-            tt.Trim();
-        }
-        Profiler.EndSample();
 
 
     }
