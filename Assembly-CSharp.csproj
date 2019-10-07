@@ -46,29 +46,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\BarChart\BarChart.cs" />
      <Compile Include="Assets\ChartBase.cs" />
-     <Compile Include="Assets\ColorStrip\ColorStrip.cs" />
-     <Compile Include="Assets\CoordinateChart\CoordinateChart.cs" />
-     <Compile Include="Assets\FunctionChart\Expression.cs" />
-     <Compile Include="Assets\FunctionChart\FunctionChart.cs" />
-     <Compile Include="Assets\LineChart\LineChart.cs" />
-     <Compile Include="Assets\LineChart\LineChartBG.cs" />
-     <Compile Include="Assets\PieChart\PieChart.cs" />
-     <Compile Include="Assets\PieChart\PieChartMgr.cs" />
-     <Compile Include="Assets\RadarChart\RadarChart.cs" />
-     <Compile Include="Assets\RadarChart\RadarChartBG.cs" />
-     <Compile Include="Assets\RadarChart\RadarChartBGPlus.cs" />
+     <Compile Include="Assets\Scripts\BarChart\BarChart.cs" />
+     <Compile Include="Assets\Scripts\ColorStrip\ColorStrip.cs" />
+     <Compile Include="Assets\Scripts\CoordinateChart\CoordinateChart.cs" />
+     <Compile Include="Assets\Scripts\FunctionChart\Expression.cs" />
+     <Compile Include="Assets\Scripts\FunctionChart\FunctionChart.cs" />
+     <Compile Include="Assets\Scripts\LineChart\LineChart.cs" />
+     <Compile Include="Assets\Scripts\LineChart\LineChartBG.cs" />
+     <Compile Include="Assets\Scripts\PieChart\PieChart.cs" />
+     <Compile Include="Assets\Scripts\PieChart\PieChartMgr.cs" />
+     <Compile Include="Assets\Scripts\RadarChart\RadarChart.cs" />
+     <Compile Include="Assets\Scripts\RadarChart\RadarChartBG.cs" />
+     <Compile Include="Assets\Scripts\RadarChart\RadarChartBGPlus.cs" />
      <Compile Include="Assets\Test\NewTest.cs" />
      <Compile Include="Assets\Test\Test.cs" />
-     <Compile Include="Assets\TextFx\Demo Scene\Scripts\TextFXDemoManager.cs" />
-     <Compile Include="Assets\TextFx\Scripts\EffectManager.cs" />
-     <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\wide_awake.txt" />
-     <None Include="Assets\TextFx\Documentation\README.txt" />
-     <None Include="Assets\TextFx\Shader\Text Shader.shader" />
-     <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\showcard_50px.txt" />
-     <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\showcard_gothic.txt" />
-     <None Include="Assets\TextFx\Demo Scene\Fonts\Bitmap Fonts\hawaii_killer.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Unity5.5/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
