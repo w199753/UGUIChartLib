@@ -12,19 +12,20 @@ namespace ChartLib
 
     public class Expression
     {
+        private const int initSize = 100;
 
         private int index = -1;
-        private char[] targetFormula;
         private int realLength = -1;
 
+        private char[] targetFormula;
         private Stack<string> opSysbol;
         private Stack<float> opNumber;
 
         public Expression()
         {
-            targetFormula = new char[100];
-            opSysbol = new Stack<string>(512);
-            opNumber = new Stack<float>(512);
+            targetFormula = new char[initSize];
+            opSysbol = new Stack<string>(4*initSize);
+            opNumber = new Stack<float>(4*initSize);
         }
 
         public void SetFormula(string formula)
@@ -33,8 +34,12 @@ namespace ChartLib
             {
                 throw new System.Exception("the formulaStr is null or empty,check it");
             }
+
+            ResetValue();
+
             int j = 0;
-            for (int i = 0; i < formula.Length; i++)
+            int len = formula.Length;
+            for (int i = 0; i < len; i++)
             {
                 if (formula[i] != ' ')
                     targetFormula[j++] = formula[i];
@@ -42,6 +47,22 @@ namespace ChartLib
             realLength = j;
         }
 
+        //清空容器
+        private void ResetValue()
+        {
+            for (int i = 0; i < initSize; i++)
+            {
+                targetFormula[i] = ' ';
+            }
+            opSysbol.Clear();
+            opNumber.Clear();
+        }
+
+        /// <summary>
+        /// 获取结果
+        /// </summary>
+        /// <param name="variableValue">自变量需替换的值</param>
+        /// <returns></returns>
         public float GetReslut(float variableValue)
         {
             if (realLength < 0)
@@ -49,8 +70,6 @@ namespace ChartLib
                 Debug.LogError("please set formula first!");
                 return 0;
             }
-            opSysbol.Clear();
-            opNumber.Clear();
 
             opSysbol.Push("#");
             bool is_minus = true;//判断是否为符号

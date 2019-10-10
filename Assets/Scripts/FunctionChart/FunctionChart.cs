@@ -13,7 +13,14 @@ using UnityEngine.Profiling;
 
 namespace ChartLib
 {
-
+    public enum FunctionType
+    {
+        SinFun,
+        CosFun,
+        LinearFun,
+        InverseFun,
+        CustomFun
+    }
     public class FunctionChart : ChartBase
     {
 
@@ -21,11 +28,11 @@ namespace ChartLib
         //Ax+By+C=0;     y=(-Ax-C)/B
         public struct LinearFun
         {
-            [Range(0.1f, 5f)]
+            [Range(-500f, 500f), SerializeField]
             public float A;
-            [Range(0.1f, 5f)]
+            [Range(-500f, 500f), SerializeField]
             public float B;
-            [Range(0.1f, 5f)]
+            [Range(-500f, 500f), SerializeField]
             public float C;
             public LinearFun(float a, float b, float c)
             {
@@ -39,8 +46,9 @@ namespace ChartLib
         //Acos(x)+B
         public struct CosineFun
         {
-            [Range(0.1f, 5f)]
+            [Range(-50f, 50f), SerializeField]
             public float A;
+            [Range(-500f, 500f), SerializeField]
             public float B;
         }
 
@@ -48,14 +56,16 @@ namespace ChartLib
         //Asin(x)+B
         public struct SinFun
         {
-            [Range(0.1f, 5f)]
+            [Range(-50f, 50f), SerializeField]
             public float A;
+            [Range(-500f, 500f), SerializeField]
             public float B;
         }
 
         [Serializable]
         public struct InverseFun
         {
+            [Range(-500f, 500f), SerializeField]
             public float K;
         }
 
@@ -69,51 +79,56 @@ namespace ChartLib
             public string formula;
         }
 
-        private enum FunctionType
+
+        [SerializeField,HideInInspector]
+        private FunctionType m_funType = FunctionType.SinFun;
+        public FunctionType FunType
         {
-            SinFun,
-            CosFun,
-            LinearFun,
-            InverseFun,
-            CustomFun
+            get { return m_funType; }
+            set { m_funType = value; }
         }
 
-        [SerializeField]
-        private FunctionType funType = FunctionType.SinFun;
-
-
-        [SerializeField]
-        private float lineWidth = 2f;
+        [SerializeField, HideInInspector]
+        private float m_lineWidth = 2f;
         public float LineWidth
         {
-            get { return lineWidth; }
+            get { return m_lineWidth; }
         }
 
-        [SerializeField, Range(1f, 15f)]
-        private float lineSmooth = 1f;
+        [SerializeField, Range(1f, 15f), HideInInspector]
+        private float m_lineSmooth = 1f;
         public float LineSmooth
         {
-            get { return lineSmooth; }
+            get { return m_lineSmooth; }
         }
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private Color m_lineColor = Color.white;
         public Color LineColor
         {
             get { return m_lineColor; }
         }
 
-        [SerializeField, Range(1f, 100f)]
+        [SerializeField, Range(1f, 100f), HideInInspector]
         private float m_baseUnit = 1f;
         public float BaseUnit
         {
             get { return m_baseUnit; }
         }
 
+        [SerializeField,HideInInspector]
         public LinearFun linearFun = new LinearFun(0.1f, 0.1f, 0.1f);
+
+        [SerializeField, HideInInspector]
         public CosineFun cosFun = new CosineFun();
+
+        [SerializeField, HideInInspector]
         public SinFun sinFun = new SinFun();
+
+        [SerializeField, HideInInspector]
         public InverseFun inverseFun = new InverseFun();
+
+        [SerializeField, HideInInspector]
         public CustomFun customFun = new CustomFun();
 
         public override void ModifyMesh(VertexHelper vh)
@@ -138,22 +153,27 @@ namespace ChartLib
         {
             vh.Clear();
 
-            switch (funType)
+            switch (m_funType)
             {
                 case FunctionType.SinFun:
-                    DrawSinFunChart(vh, funType);
+                    DrawSinFunChart(vh, m_funType);
                     break;
                 case FunctionType.CosFun:
-                    DrawCosFunChart(vh, funType);
+                    DrawCosFunChart(vh, m_funType);
                     break;
                 case FunctionType.LinearFun:
-                    DrawLinearFunChart(vh, funType);
+                    DrawLinearFunChart(vh, m_funType);
                     break;
                 case FunctionType.InverseFun:
-                    DrawInverseFunChart(vh, funType);
+                    DrawInverseFunChart(vh, m_funType);
                     break;
                 case FunctionType.CustomFun:
-                    DrawCustomFunChart(vh, funType);
+                    DrawCustomFunChart(vh, m_funType);
+                   /* for (int i = 0; i < 10; i++)
+                    {
+                        GetResult(i, m_funType);
+                    }*/
+
                     break;
                 default:
                     break;
@@ -166,12 +186,12 @@ namespace ChartLib
 
             var startPos = SetCullingArea(ref startX, type) * sinFun.A;
 
-            for (var x = startX; x < width / 2.0f; x += lineSmooth)
+            for (var x = startX; x < width / 2.0f; x += m_lineSmooth)
             {
                 var endPos = GetResult(x, type) * sinFun.A;
                 if (GetCullingArea(endPos)) continue;
 
-                DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, sinFun.B), endPos + CacheUnit.SetVector(0, sinFun.B), m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, sinFun.B), endPos + CacheUnit.SetVector(0, sinFun.B), m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
         }
@@ -182,12 +202,12 @@ namespace ChartLib
 
             var startPos = SetCullingArea(ref startX, type) * cosFun.A;
 
-            for (var x = startX; x < width / 2.0f; x += lineSmooth)
+            for (var x = startX; x < width / 2.0f; x += m_lineSmooth)
             {
                 var endPos = GetResult(x, type) * cosFun.A;
                 if (GetCullingArea(endPos)) continue;
 
-                DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, cosFun.B), endPos + CacheUnit.SetVector(0, cosFun.B), m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos + CacheUnit.SetVector(0, cosFun.B), endPos + CacheUnit.SetVector(0, cosFun.B), m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
         }
@@ -198,12 +218,12 @@ namespace ChartLib
 
             var startPos = SetCullingArea(ref startX, type);
 
-            for (var x = startX; x < width / 2.0f; x += lineSmooth)
+            for (var x = startX; x < width / 2.0f; x += m_lineSmooth)
             {
                 var endPos = GetResult(x, type);
                 if (GetCullingArea(endPos)) continue;
 
-                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
         }
@@ -216,7 +236,7 @@ namespace ChartLib
 
             var startPos = SetCullingArea(ref startX, type);
 
-            for (var x = startX; x < -0.1f; x += lineSmooth * (delta * 0.2f))
+            for (var x = startX; x < -0.1f; x += m_lineSmooth * (delta * 0.2f))
             {
                 delta = Mathf.Abs(x);
                 count++;
@@ -224,7 +244,7 @@ namespace ChartLib
                 var endPos = GetResult(x, type);
                 if (GetCullingArea(endPos)) continue;
 
-                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
 
@@ -232,50 +252,52 @@ namespace ChartLib
             startPos = SetCullingArea(ref startX, type);
             count = 0;
 
-            for (var x = startX; x < width / 2.0f; x += lineSmooth * (delta * 0.2f))
+            for (var x = startX; x < width / 2.0f; x += m_lineSmooth* (delta * 0.2f))
             {
                 delta = Mathf.Abs(x);
                 count++;
                 if (count > 600) break;
                 var endPos = GetResult(x, type);
+
                 if (GetCullingArea(endPos)) continue;
 
-                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
         }
 
         void DrawCustomFunChart(VertexHelper vh, FunctionType type)
         {
-            Profiler.BeginSample("123123123");
+            //Profiler.BeginSample("123123123");
             float startX = -width / 2.0f;
             var startPos = SetCullingArea(ref startX, type);
 
             //print(height - centerY + " " + -centerY);
             //print(width - centerX + " " + -centerX);
-            for (var x = startX; x < width / 2.0f; x += lineSmooth * 0.2f)
+            for (var x = startX; x < width / 2.0f; x += m_lineSmooth * 0.2f)
             {
                 var endPos = GetResult(x, type);
                 if (GetCullingArea(endPos)) continue;
                 //print(startPos.y+" "+ endPos.y+"....."+startX);
-                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, lineWidth));
+                DrawSimpleQuad(vh, GetQuad(startPos, endPos, m_lineColor, m_lineWidth));
                 startPos = endPos;
             }
-            Profiler.EndSample();
+            //Profiler.EndSample();
         }
 
         private Vector3 SetCullingArea(ref float startX, FunctionType type)
         {
-            float add = 1;
+            float add = 0.1f;
             Vector2 tmpStartPos = GetResult(startX, type);
             while (tmpStartPos.y > height - centerY || tmpStartPos.y < -centerY)
             {
-                if (add >= width / 2 - 1) break;//防死循环
+                if (add >= width / 2.0f - 1) break;//防死循环
                 tmpStartPos = GetResult(startX + add, type);
-                add += 0.4f;
+
+                add += 0.1f;
             }
             //print(tmpStartPos + "......................"+add+"................."+startX);
-            startX += (add - 1);
+            startX += (add - 0.1f);
             return tmpStartPos;
         }
 
@@ -310,7 +332,9 @@ namespace ChartLib
                 case FunctionType.InverseFun:
                     return CacheUnit.SetVector(x, inverseFun.K / x) * BaseUnit;
                 case FunctionType.CustomFun:
+                    //exp = new Expression();
                     exp.SetFormula(customFun.formula);
+
                     return CacheUnit.SetVector(x, exp.GetReslut(x)) * BaseUnit;
                 default:
                     return default(Vector3);
